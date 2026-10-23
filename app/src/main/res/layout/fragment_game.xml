@@ -6,7 +6,7 @@
     android:background="@color/background"
     android:padding="@dimen/spacing_sm">
 
-    <!-- Top Header Bar: Back Button, Active Turn Indicator, and Rotate Black Toggle -->
+    <!-- Top Header Bar: Back Button, Active Turn Indicator, Pause Button, Rotate Toggle -->
     <LinearLayout
         android:id="@+id/top_header_bar"
         android:layout_width="@dimen/zero_dp"
@@ -23,7 +23,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/button_height_compact"
-            android:text="@string/settings_back" />
+            android:minWidth="@dimen/zero_dp"
+            android:paddingStart="@dimen/spacing_sm"
+            android:paddingEnd="@dimen/spacing_sm"
+            android:text="@string/settings_back"
+            android:textSize="@dimen/text_caption" />
 
         <TextView
             android:id="@+id/tv_turn_indicator"
@@ -37,22 +41,33 @@
             android:maxLines="1"
             android:text="@string/game_turn_white"
             android:textColor="@color/primary"
-            android:textSize="@dimen/text_section_label"
+            android:textSize="@dimen/text_caption"
             android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_game_pause"
+            style="@style/Widget.VibeChess.Button.Surface"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:minHeight="@dimen/button_height_compact"
+            android:minWidth="@dimen/zero_dp"
+            android:paddingStart="@dimen/spacing_sm"
+            android:paddingEnd="@dimen/spacing_sm"
+            android:text="@string/game_pause"
+            android:textSize="@dimen/text_caption" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_rotate_black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/game_rotate_black_pieces"
-            android:textColor="@color/text"
-            android:textSize="@dimen/text_caption"
+            android:contentDescription="@string/game_rotate_black_pieces"
             app:thumbTint="@color/primary" />
 
     </LinearLayout>
 
-    <!-- Black Player Panel (Top: Player Label, Captured Tray Placeholder, Clock Placeholder) -->
+    <!-- Black Player Panel (Top: Player Label, Captured Tray Icons, Large Clock) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_player_black"
         android:layout_width="@dimen/zero_dp"
@@ -80,6 +95,7 @@
             <LinearLayout
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -91,45 +107,48 @@
                     android:textSize="@dimen/text_section_label"
                     android:textStyle="bold" />
 
-                <!-- Captured Tray Placeholder -->
-                <LinearLayout
-                    android:id="@+id/layout_captured_black"
+                <!-- Captured Pieces Tray (icons only, no numbers) -->
+                <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
+                    android:id="@+id/tray_captured_black"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:minHeight="@dimen/captured_tray_min_height"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/game_captured_tray_placeholder"
-                        android:textColor="@color/text"
-                        android:textSize="@dimen/text_caption" />
-                </LinearLayout>
+                    android:layout_height="@dimen/captured_tray_min_height"
+                    android:layout_marginTop="@dimen/spacing_xxs" />
 
             </LinearLayout>
 
-            <!-- Clock Placeholder -->
-            <TextView
-                android:id="@+id/tv_clock_black"
+            <!-- Black's Large Clock (rotated 180° when Rotate Opponent is ON) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_clock_black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/background"
-                android:paddingStart="@dimen/spacing_sm"
-                android:paddingTop="@dimen/spacing_xxs"
-                android:paddingEnd="@dimen/spacing_sm"
-                android:paddingBottom="@dimen/spacing_xxs"
-                android:text="@string/game_clock_placeholder"
-                android:textColor="@color/text"
-                android:textSize="@dimen/text_clock"
-                android:textStyle="bold" />
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="@dimen/corner_radius_sm"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
+
+                <TextView
+                    android:id="@+id/tv_clock_black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:minWidth="@dimen/clock_min_width"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:paddingTop="@dimen/spacing_xxs"
+                    android:paddingEnd="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_xxs"
+                    android:text="@string/game_clock_placeholder"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_clock"
+                    android:textStyle="bold" />
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Winning Probability Bar Placeholder -->
+    <!-- Winning Probability Bar (White % vs Black %, smoothly animated, no raw points) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_probability_bar"
         android:layout_width="@dimen/zero_dp"
@@ -153,33 +172,38 @@
             android:paddingEnd="@dimen/spacing_sm"
             android:paddingBottom="@dimen/spacing_xs">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/game_win_probability_placeholder"
-                android:textColor="@color/text"
-                android:textSize="@dimen/text_caption" />
-
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/prob_bar_height"
-                android:layout_marginTop="@dimen/spacing_xxs"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <View
+                <TextView
+                    android:id="@+id/tv_prob_white"
                     android:layout_width="@dimen/zero_dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/primary" />
+                    android:gravity="start"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/text_caption"
+                    android:textStyle="bold" />
 
-                <View
+                <TextView
+                    android:id="@+id/tv_prob_black"
                     android:layout_width="@dimen/zero_dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/piece_black_fill" />
+                    android:gravity="end"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_caption"
+                    android:textStyle="bold" />
 
             </LinearLayout>
+
+            <com.reduan.vibechess.ui.game.WinProbabilityBarView
+                android:id="@+id/win_probability_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/prob_bar_height"
+                android:layout_marginTop="@dimen/spacing_xxs" />
 
         </LinearLayout>
 
@@ -199,7 +223,63 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/card_probability_bar" />
 
-    <!-- White Player Panel (Bottom: Player Label, Captured Tray Placeholder, Clock Placeholder) -->
+    <!-- Opaque Pause Overlay hiding the board while paused -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/pause_overlay"
+        android:layout_width="@dimen/zero_dp"
+        android:layout_height="@dimen/zero_dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="@dimen/corner_radius_md"
+        app:cardElevation="@dimen/zero_dp"
+        app:layout_constraintBottom_toBottomOf="@+id/board_view"
+        app:layout_constraintEnd_toEndOf="@+id/board_view"
+        app:layout_constraintStart_toStartOf="@+id/board_view"
+        app:layout_constraintTop_toTopOf="@+id/board_view"
+        app:strokeColor="@color/primary"
+        app:strokeWidth="@dimen/stroke_width">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/game_paused_title"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/text_screen_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:gravity="center"
+                android:text="@string/game_paused_message"
+                android:textColor="@color/text"
+                android:textSize="@dimen/text_home_subtitle" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_game_resume"
+                style="@style/Widget.VibeChess.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/game_resume" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- White Player Panel (Bottom: Player Label, Captured Tray Icons, Large Clock) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_player_white"
         android:layout_width="@dimen/zero_dp"
@@ -226,6 +306,7 @@
             <LinearLayout
                 android:layout_width="@dimen/zero_dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -237,39 +318,42 @@
                     android:textSize="@dimen/text_section_label"
                     android:textStyle="bold" />
 
-                <!-- Captured Tray Placeholder -->
-                <LinearLayout
-                    android:id="@+id/layout_captured_white"
+                <!-- Captured Pieces Tray (icons only, no numbers) -->
+                <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
+                    android:id="@+id/tray_captured_white"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:minHeight="@dimen/captured_tray_min_height"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/game_captured_tray_placeholder"
-                        android:textColor="@color/text"
-                        android:textSize="@dimen/text_caption" />
-                </LinearLayout>
+                    android:layout_height="@dimen/captured_tray_min_height"
+                    android:layout_marginTop="@dimen/spacing_xxs" />
 
             </LinearLayout>
 
-            <!-- Clock Placeholder -->
-            <TextView
-                android:id="@+id/tv_clock_white"
+            <!-- White's Large Clock -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_clock_white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/background"
-                android:paddingStart="@dimen/spacing_sm"
-                android:paddingTop="@dimen/spacing_xxs"
-                android:paddingEnd="@dimen/spacing_sm"
-                android:paddingBottom="@dimen/spacing_xxs"
-                android:text="@string/game_clock_placeholder"
-                android:textColor="@color/text"
-                android:textSize="@dimen/text_clock"
-                android:textStyle="bold" />
+                app:cardBackgroundColor="@color/primary"
+                app:cardCornerRadius="@dimen/corner_radius_sm"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="@dimen/stroke_width">
+
+                <TextView
+                    android:id="@+id/tv_clock_white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:minWidth="@dimen/clock_min_width"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:paddingTop="@dimen/spacing_xxs"
+                    android:paddingEnd="@dimen/spacing_sm"
+                    android:paddingBottom="@dimen/spacing_xxs"
+                    android:text="@string/game_clock_placeholder"
+                    android:textColor="@color/onPrimary"
+                    android:textSize="@dimen/text_clock"
+                    android:textStyle="bold" />
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 

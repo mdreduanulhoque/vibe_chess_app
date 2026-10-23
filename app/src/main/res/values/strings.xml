@@ -22,6 +22,15 @@
     <string name="settings_dark_mode_desc">Switch between light and dark theme</string>
     <string name="settings_back">Back</string>
 
+    <!-- Game Setup Screen -->
+    <string name="setup_title">Game Setup</string>
+    <string name="setup_subtitle_multiplayer">Pass-and-Play (2 Players)</string>
+    <string name="setup_time_label">Time per side</string>
+    <string name="setup_time_1_min">1 Minute</string>
+    <string name="setup_time_2_min">2 Minutes</string>
+    <string name="setup_rotate_opponent_label">Rotate opponent\'s pieces 180°</string>
+    <string name="setup_start_game">Start Game</string>
+
     <!-- Game Screen -->
     <string name="game_player_white">White</string>
     <string name="game_player_black">Black</string>
@@ -29,9 +38,28 @@
     <string name="game_turn_black">Black to move</string>
     <string name="game_clock_placeholder">--:--</string>
     <string name="game_win_probability_placeholder" formatted="false">Win Probability (50% - 50%)</string>
+    <string name="game_prob_white_format">White %1$d%%</string>
+    <string name="game_prob_black_format">Black %1$d%%</string>
     <string name="game_captured_tray_placeholder">Captured pieces</string>
     <string name="game_rotate_black_pieces">Rotate Black 180°</string>
     <string name="game_board_content_desc">Chess board</string>
+    <string name="game_pause">Pause</string>
+    <string name="game_paused_title">Game Paused</string>
+    <string name="game_paused_message">Board is hidden while paused</string>
+    <string name="game_resume">Resume</string>
+    <string name="game_turn_skipped_white">White has no legal moves — turn skipped</string>
+    <string name="game_turn_skipped_black">Black has no legal moves — turn skipped</string>
+
+    <!-- Result Screen -->
+    <string name="result_title">Game Over</string>
+    <string name="result_white_wins">White Wins!</string>
+    <string name="result_black_wins">Black Wins!</string>
+    <string name="result_draw">Draw!</string>
+    <string name="result_reason_win">Time ended, more points on board</string>
+    <string name="result_reason_draw">Time ended, equal points on board</string>
+    <string name="result_final_points_label">Final Board Points</string>
+    <string name="result_rematch">Rematch</string>
+    <string name="result_home">Home</string>
 
     <!-- Promotion Dialog -->
     <string name="promotion_dialog_title">Promote Pawn</string>

@@ -42,7 +42,7 @@ public class HomeFragment extends Fragment {
 
         btnSinglePlayer.setOnClickListener(placeholderListener);
         btnMultiplayer.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_home_to_game));
+                Navigation.findNavController(v).navigate(R.id.action_home_to_setup));
         btnHowToPlay.setOnClickListener(placeholderListener);
 
         btnSettings.setOnClickListener(v ->

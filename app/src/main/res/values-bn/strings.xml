@@ -19,6 +19,15 @@
     <string name="settings_dark_mode_desc">লাইট ও ডার্ক থিম পরিবর্তন করুন</string>
     <string name="settings_back">ফিরে যান</string>
 
+    <!-- Game Setup Screen -->
+    <string name="setup_title">খেলা সেটআপ</string>
+    <string name="setup_subtitle_multiplayer">পাস-অ্যান্ড-প্লে (২ জন খেলোয়াড়)</string>
+    <string name="setup_time_label">প্রতি পক্ষের সময়</string>
+    <string name="setup_time_1_min">১ মিনিট</string>
+    <string name="setup_time_2_min">২ মিনিট</string>
+    <string name="setup_rotate_opponent_label">প্রতিপক্ষের ঘুঁটি ১৮০° ঘোরান</string>
+    <string name="setup_start_game">খেলা শুরু করুন</string>
+
     <!-- Game Screen -->
     <string name="game_player_white">সাদা</string>
     <string name="game_player_black">কালো</string>
@@ -26,9 +35,28 @@
     <string name="game_turn_black">কালোর চাল</string>
     <string name="game_clock_placeholder">--:--</string>
     <string name="game_win_probability_placeholder" formatted="false">জয়ের সম্ভাবনা (৫০% - ৫০%)</string>
+    <string name="game_prob_white_format">সাদা %1$d%%</string>
+    <string name="game_prob_black_format">কালো %1$d%%</string>
     <string name="game_captured_tray_placeholder">ক্যাপচার করা ঘুঁটি</string>
     <string name="game_rotate_black_pieces">কালো ঘুঁটি ১৮০° ঘোরান</string>
     <string name="game_board_content_desc">দাবার বোর্ড</string>
+    <string name="game_pause">বিরতি</string>
+    <string name="game_paused_title">খেলা বিরতিতে আছে</string>
+    <string name="game_paused_message">বিরতির সময় বোর্ড লুকানো রয়েছে</string>
+    <string name="game_resume">আবার শুরু করুন</string>
+    <string name="game_turn_skipped_white">সাদার কোনো বৈধ চাল নেই — দান স্কিপ হয়েছে</string>
+    <string name="game_turn_skipped_black">কালোর কোনো বৈধ চাল নেই — দান স্কিপ হয়েছে</string>
+
+    <!-- Result Screen -->
+    <string name="result_title">খেলা শেষ</string>
+    <string name="result_white_wins">সাদা জিতেছে!</string>
+    <string name="result_black_wins">কালো জিতেছে!</string>
+    <string name="result_draw">ড্র!</string>
+    <string name="result_reason_win">সময় শেষ, বোর্ডে বেশি পয়েন্ট</string>
+    <string name="result_reason_draw">সময় শেষ, বোর্ডে সমান পয়েন্ট</string>
+    <string name="result_final_points_label">বোর্ডের চূড়ান্ত পয়েন্ট</string>
+    <string name="result_rematch">আবার খেলুন</string>
+    <string name="result_home">হোম</string>
 
     <!-- Promotion Dialog -->
     <string name="promotion_dialog_title">বোড়ে প্রমোশন</string>
