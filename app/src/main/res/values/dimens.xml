@@ -24,6 +24,10 @@
     <dimen name="home_badge_size">56dp</dimen>
     <dimen name="side_panel_max_width">240dp</dimen>
     <dimen name="clock_min_width">96dp</dimen>
+    <dimen name="demo_board_size">156dp</dimen>
+    <dimen name="demo_board_dual_size">128dp</dimen>
+    <dimen name="points_table_icon_size">28dp</dimen>
+    <dimen name="how_to_play_max_width">480dp</dimen>
 
     <dimen name="text_splash_logo">42sp</dimen>
     <dimen name="text_splash_tagline">16sp</dimen>

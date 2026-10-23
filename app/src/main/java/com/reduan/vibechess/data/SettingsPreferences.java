@@ -20,6 +20,7 @@ public class SettingsPreferences {
     private static final String KEY_SOUND_ENABLED = "sound_enabled";
     private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
     private static final String KEY_ROTATE_OPPONENT_PIECES = "rotate_opponent_pieces";
+    private static final String KEY_HAS_SEEN_HOW_TO_PLAY = "has_seen_how_to_play";
 
     public static final String LANG_SYSTEM = "";
     public static final String LANG_ENGLISH = "en";
@@ -118,6 +119,20 @@ public class SettingsPreferences {
      */
     public void setRotateOpponentPiecesEnabled(boolean enabled) {
         prefs.edit().putBoolean(KEY_ROTATE_OPPONENT_PIECES, enabled).apply();
+    }
+
+    /**
+     * Returns whether the user has already seen the "How to Play" tutorial on first launch.
+     */
+    public boolean hasSeenHowToPlay() {
+        return prefs.getBoolean(KEY_HAS_SEEN_HOW_TO_PLAY, false);
+    }
+
+    /**
+     * Persists that the user has seen or skipped the first-launch "How to Play" screen.
+     */
+    public void setHasSeenHowToPlay(boolean seen) {
+        prefs.edit().putBoolean(KEY_HAS_SEEN_HOW_TO_PLAY, seen).apply();
     }
 
     /**

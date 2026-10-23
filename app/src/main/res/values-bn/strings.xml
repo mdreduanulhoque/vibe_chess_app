@@ -28,14 +28,66 @@
     <!-- How to Play Screen -->
     <string name="how_to_play_title">খেলার নিয়মাবলি</string>
     <string name="how_to_play_subtitle">চেক ও কিস্তিমাত ছাড়া দ্রুতগতির সময়ভিত্তিক দাবা</string>
-    <string name="how_to_play_no_check_title">কোনো চেক বা কিস্তিমাত নেই</string>
-    <string name="how_to_play_no_check_body">ঘুঁটির চাল সাধারণ দাবার মতোই (ক্যাসলিং, এন পাসান্ট ও বোড়ে প্রমোশনসহ)। তবে এখানে কোনো চেক বা কিস্তিমাত নেই — রাজা আক্রান্ত ঘরে যেতে পারে এবং যেকোনো ঘুঁটির মতোই রাজাকে ক্যাপচার করা যায়; রাজা কাটা গেলেও খেলা সাথে সাথে শেষ হয় না!</string>
-    <string name="how_to_play_clock_title">সময় ও পয়েন্টের লড়াই</string>
-    <string name="how_to_play_clock_body">প্রতি পক্ষ মোট 1 বা 2 মিনিট সময় পায় (কোনো অতিরিক্ত সময় যোগ হয় না)। যার চাল শুধু তার ঘড়িই চলে। যেকোনো এক পক্ষের সময় শূন্য (0) হওয়া মাত্র খেলা শেষ হয় এবং তখন বোর্ডে যার ঘুঁটির মোট পয়েন্ট বেশি থাকে সে জয়ী হয় (সমান পয়েন্ট হলে ড্র)।</string>
-    <string name="how_to_play_points_title">ঘুঁটির পয়েন্ট মান</string>
-    <string name="how_to_play_points_body">বোড়ে (Pawn) = 1  •  ঘোড়া (Knight) = 2  •  হাতি (Bishop) = 3\nনৌকা (Rook) = 4  •  মন্ত্রী (Queen) = 5  •  রাজা (King) = 7</string>
-    <string name="how_to_play_special_title">জয়ের সম্ভাবনা ও বিশেষ নিয়ম</string>
-    <string name="how_to_play_special_body">খেলা চলাকালীন সরাসরি পয়েন্ট দেখানো হয় না; বদলে জয়ের সম্ভাবনা বার (Win Probability Bar) দেখে বোঝা যায় কে এগিয়ে আছে। রাজা ও নৌকা না নড়ে থাকলে এবং মাঝের ঘর খালি থাকলে আক্রান্ত ঘরের ওপর দিয়েও ক্যাসলিং করা যায় (রাজা ক্যাপচার হলে ক্যাসলিংয়ের সুযোগ বাতিল হয়)। কোনো পক্ষের বৈধ চাল না থাকলে তার দান স্কিপ হয় কিন্তু তার ঘড়ি চলতে থাকে।</string>
+    <string name="how_to_play_skip">এড়িয়ে যান</string>
+    <string name="how_to_play_got_it">বুঝেছি</string>
+    <string name="how_to_play_before">1. আগের অবস্থা</string>
+    <string name="how_to_play_after">2. পরের অবস্থা</string>
+    <string name="how_to_play_points_value_format">%1$d পয়েন্ট</string>
+    <string name="how_to_play_points_value_single_format">%1$d পয়েন্ট</string>
+
+    <string name="how_to_play_sec1_title">1. খেলার মূল লক্ষ্য</string>
+    <string name="how_to_play_sec1_body">সময় শেষ হওয়ার মুহূর্তে বোর্ডে প্রতিপক্ষের চেয়ে বেশি পয়েন্ট রাখুন। মূল্যবান ঘুঁটি বাঁচান এবং প্রতিপক্ষের ঘুঁটি ক্যাপচার করে এগিয়ে থাকুন।</string>
+
+    <string name="how_to_play_sec2_title">2. বোর্ড ও শুরুর সাজানো</string>
+    <string name="how_to_play_sec2_body">সাধারণ 8×8 দাবার বোর্ডে প্রতি পক্ষে 16টি করে ঘুঁটি নিয়ে খেলা শুরু হয়। নিচের সারি থেকে সাদা ঘুঁটি সবসময় প্রথম চাল দেয়।</string>
+
+    <string name="how_to_play_sec3_title">3. বোড়ে (Pawn)</string>
+    <string name="how_to_play_sec3_body">সামনে 1 ঘর এগোয় (নিজের প্রথম চালে একসাথে 2 ঘর যেতে পারে)। সামনের কোণাকুণি 1 ঘরে ক্যাপচার করে, কখনোই সোজা সামনে ক্যাপচার করে না।</string>
+
+    <string name="how_to_play_sec4_title">4. ঘোড়া (Knight)</string>
+    <string name="how_to_play_sec4_body">ইংরেজি L-আকৃতিতে চলে (একদিকে 2 ঘর গিয়ে পাশে 1 ঘর)। একমাত্র ঘোড়াই অন্য ঘুঁটির ওপর দিয়ে লাফিয়ে যেতে পারে।</string>
+
+    <string name="how_to_play_sec5_title">5. হাতি (Bishop)</string>
+    <string name="how_to_play_sec5_body">ফাঁকা পথ বরাবর কোণাকুণি যেকোনো দূরত্ব পর্যন্ত চলতে পারে। প্রতিটি হাতি আজীবন নিজের শুরুর রঙের ঘরেই থাকে।</string>
+
+    <string name="how_to_play_sec6_title">6. নৌকা (Rook)</string>
+    <string name="how_to_play_sec6_body">ফাঁকা পথ বরাবর সোজা ডানে-বামে বা ওপরে-নিচে যেকোনো দূরত্ব পর্যন্ত চলতে পারে।</string>
+
+    <string name="how_to_play_sec7_title">7. মন্ত্রী (Queen)</string>
+    <string name="how_to_play_sec7_body">নৌকা ও হাতির যৌথ শক্তি: ফাঁকা পথ বরাবর সোজা অথবা কোণাকুণি যেকোনো দূরত্ব পর্যন্ত চলতে পারে।</string>
+
+    <string name="how_to_play_sec8_title">8. রাজা (King)</string>
+    <string name="how_to_play_sec8_body">যেকোনো দিকে 1 ঘর করে চলে। রাজার মান 7 পয়েন্ট — যা বোর্ডের সবচেয়ে মূল্যবান ঘুঁটি।</string>
+
+    <string name="how_to_play_sec9_title">9. ঘুঁটি ক্যাপচার করা</string>
+    <string name="how_to_play_sec9_body">প্রতিপক্ষের ঘুঁটির ঘরে নিজের ঘুঁটি বসিয়ে সেটিকে বোর্ড থেকে তুলে নিন এবং প্রতিপক্ষের মোট পয়েন্ট কমিয়ে দিন।</string>
+
+    <string name="how_to_play_sec10_title">10. ক্যাসলিং (Castling)</string>
+    <string name="how_to_play_sec10_body">রাজা না-নড়া নৌকার দিকে 2 ঘর সরে যায় এবং নৌকাটি রাজার ওপর দিয়ে লাফিয়ে পাশে বসে। মাঝের ঘর ফাঁকা থাকলে আক্রান্ত ঘরের ওপর দিয়েও ক্যাসলিং করা যায়!</string>
+
+    <string name="how_to_play_sec11_title">11. এন পাসান্ট (En Passant)</string>
+    <string name="how_to_play_sec11_body">প্রতিপক্ষের বোড়ে একসাথে 2 ঘর এগিয়ে আপনার বোড়ের ঠিক পাশে বসলে, পরের চালেই সেটিকে কোণাকুণি চালে ক্যাপচার করা যায়।</string>
+
+    <string name="how_to_play_sec12_title">12. বোড়ে প্রমোশন (Promotion)</string>
+    <string name="how_to_play_sec12_body">বোড়ে বোর্ডের শেষ সারিতে পৌঁছালে সাথে সাথে সেটিকে মন্ত্রী, নৌকা, হাতি বা ঘোড়ায় উন্নীত করে নিজের পয়েন্ট বাড়িয়ে নিন।</string>
+
+    <string name="how_to_play_sec13_title">13. কোনো চেক বা কিস্তিমাত নেই</string>
+    <string name="how_to_play_sec13_body">এই খেলায় কোনো চেক বা কিস্তিমাত নেই! রাজা আক্রান্ত ঘরে যেতে পারে এবং রাজাকে ক্যাপচার করলেও খেলা থামে না — সময় শেষ হওয়া পর্যন্ত খেলা চলতে থাকে।</string>
+
+    <string name="how_to_play_sec14_title">14. ঘুঁটির পয়েন্ট তালিকা</string>
+    <string name="how_to_play_sec14_body">বোর্ডে টিকে থাকা প্রতিটি ঘুঁটির পয়েন্ট: বোড়ে 1, ঘোড়া 2, হাতি 3, নৌকা 4, মন্ত্রী 5 এবং রাজা 7 পয়েন্ট।</string>
+
+    <string name="how_to_play_sec15_title">15. টাইমার ও সময়</string>
+    <string name="how_to_play_sec15_body">প্রতি পক্ষ মোট 1 বা 2 মিনিট সময় পায়। শুধুমাত্র যার দান তার ঘড়িই চলে; চাল দেওয়ার সাথে সাথে ঘড়ি থেমে প্রতিপক্ষের ঘড়ি চালু হয়।</string>
+
+    <string name="how_to_play_sec16_title">16. কীভাবে জিতবেন</string>
+    <string name="how_to_play_sec16_body">যেকোনো এক পক্ষের ঘড়ি 0 হতেই খেলা শেষ হয়। তখন বোর্ডে যার মোট পয়েন্ট বেশি সে জয়ী হয়; সমান পয়েন্ট হলে ম্যাচ ড্র হয়।</string>
+
+    <string name="how_to_play_sec17_title">17. কোনো বৈধ চাল না থাকলে</string>
+    <string name="how_to_play_sec17_body">আপনার চালে কোনো বৈধ চাল না থাকলে দানটি স্বয়ংক্রিয়ভাবে স্কিপ হবে, কিন্তু সময় শেষ না হওয়া পর্যন্ত আপনার ঘড়ি চলতে থাকবে।</string>
+
+    <string name="how_to_play_sec18_title">18. জয়ের সম্ভাবনা বার (Probability Bar)</string>
+    <string name="how_to_play_sec18_body">খেলা চলাকালীন সরাসরি পয়েন্ট লুকানো থাকে। বোর্ডের পয়েন্ট ও বাকি সময়ের ভিত্তিতে কে কতটা এগিয়ে তা এই বার দেখে সহজেই বোঝা যায়।</string>
 
     <!-- Game Setup Screen -->
     <string name="setup_title">খেলা সেটআপ</string>
@@ -94,10 +146,12 @@
     <string name="result_rematch">আবার খেলুন</string>
     <string name="result_home">হোম</string>
 
-    <!-- Promotion Dialog -->
+    <!-- Promotion Dialog & Piece Names -->
     <string name="promotion_dialog_title">বোড়ে প্রমোশন</string>
-    <string name="piece_queen">মন্ত্রী (কুইন)</string>
-    <string name="piece_rook">নৌকা (রুক)</string>
-    <string name="piece_bishop">হাতি (বিশপ)</string>
+    <string name="piece_pawn">বোড়ে (পন)</string>
     <string name="piece_knight">ঘোড়া (নাইট)</string>
+    <string name="piece_bishop">হাতি (বিশপ)</string>
+    <string name="piece_rook">নৌকা (রুক)</string>
+    <string name="piece_queen">মন্ত্রী (কুইন)</string>
+    <string name="piece_king">রাজা (কিং)</string>
 </resources>

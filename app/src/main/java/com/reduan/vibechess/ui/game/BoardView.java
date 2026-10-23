@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -37,20 +38,18 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Custom Canvas-drawn 8x8 Chess Board View.
- * <p>
- * Responsibilities:
+ * Custom Canvas-drawn Chess Board View supporting both:
  * <ul>
- *   <li>Draws light and dark squares using theme colors.</li>
- *   <li>Draws last-move highlight, selected-square highlight, legal move dots, and capture rings.</li>
- *   <li>Draws the 12 minimalist piece VectorDrawables, optionally rotating Black pieces 180°.</li>
- *   <li>Animates piece transitions smoothly (175ms).</li>
- *   <li>Remains strictly free of chess rules: queries {@link GameState#generateMoves()} from :game-core.</li>
+ *   <li>Live interactive 8x8 gameplay ({@link #setGameState(GameState)}).</li>
+ *   <li>Read-only 5x5 or 8x8 "demo" mode ({@link #setDemoConfig(BoardDemoConfig)}) for visual
+ *       rule illustrations on the "How to Play" screen (with move dots, capture rings,
+ *       directional arrows, and gentle pulsing highlights).</li>
  * </ul>
  */
 public class BoardView extends View {
 
     private static final long MOVE_ANIMATION_DURATION_MS = 175L;
+    private static final long DEMO_PULSE_DURATION_MS = 1100L;
     private static final int DEFAULT_BOARD_DP = 320;
 
     public interface OnMoveSelectedListener {
@@ -72,12 +71,18 @@ public class BoardView extends View {
     private final Paint moveDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint captureRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint boardBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint demoPulsePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint demoArrowLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint demoArrowHeadPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Path arrowHeadPath = new Path();
 
     private final RectF squareRect = new RectF();
     private final Map<Color, Map<PieceType, Drawable>> drawableCache = new EnumMap<>(Color.class);
 
     @Nullable
     private GameState gameState;
+    @Nullable
+    private BoardDemoConfig demoConfig;
     @Nullable
     private Square selectedSquare;
     @NonNull
@@ -104,6 +109,12 @@ public class BoardView extends View {
     private ValueAnimator moveAnimator;
     private boolean hasRenderedInitialState = false;
 
+    // Demo mode gentle pulsing highlight state
+    private int baseHighlightAlpha = 102;
+    private float demoPulseFactor = 0.85f;
+    @Nullable
+    private ValueAnimator demoPulseAnimator;
+
     public BoardView(@NonNull Context context) {
         super(context);
         init(context);
@@ -126,21 +137,34 @@ public class BoardView extends View {
         darkSquarePaint.setStyle(Paint.Style.FILL);
         darkSquarePaint.setColor(ContextCompat.getColor(context, R.color.board_dark));
 
+        int highlightMoveColor = ContextCompat.getColor(context, R.color.highlight_move);
         selectedSquarePaint.setStyle(Paint.Style.FILL);
-        selectedSquarePaint.setColor(ContextCompat.getColor(context, R.color.highlight_move));
+        selectedSquarePaint.setColor(highlightMoveColor);
 
         lastMovePaint.setStyle(Paint.Style.FILL);
         lastMovePaint.setColor(ContextCompat.getColor(context, R.color.last_move));
 
         moveDotPaint.setStyle(Paint.Style.FILL);
-        moveDotPaint.setColor(ContextCompat.getColor(context, R.color.highlight_move));
+        moveDotPaint.setColor(highlightMoveColor);
 
         captureRingPaint.setStyle(Paint.Style.STROKE);
-        captureRingPaint.setColor(ContextCompat.getColor(context, R.color.highlight_move));
+        captureRingPaint.setColor(highlightMoveColor);
 
         boardBorderPaint.setStyle(Paint.Style.STROKE);
         boardBorderPaint.setStrokeWidth(dpToPx(1));
         boardBorderPaint.setColor(ContextCompat.getColor(context, R.color.stroke_subtle));
+
+        demoPulsePaint.setStyle(Paint.Style.FILL);
+        demoPulsePaint.setColor(highlightMoveColor);
+        baseHighlightAlpha = android.graphics.Color.alpha(highlightMoveColor);
+
+        int primaryColor = ContextCompat.getColor(context, R.color.primary);
+        demoArrowLinePaint.setStyle(Paint.Style.STROKE);
+        demoArrowLinePaint.setStrokeCap(Paint.Cap.ROUND);
+        demoArrowLinePaint.setColor(primaryColor);
+
+        demoArrowHeadPaint.setStyle(Paint.Style.FILL);
+        demoArrowHeadPaint.setColor(primaryColor);
 
         preloadDrawables(context);
     }
@@ -160,10 +184,37 @@ public class BoardView extends View {
     }
 
     /**
+     * Configures this {@link BoardView} in read-only "demo" mode for visual rule illustrations.
+     */
+    public void setDemoConfig(@Nullable BoardDemoConfig config) {
+        this.demoConfig = config;
+        if (config != null) {
+            this.gameState = null;
+            this.selectedSquare = null;
+            this.interactionEnabled = false;
+            this.rotateBlackPieces = false;
+            this.boardPerspectiveFlipped = false;
+            cancelMoveAnimation();
+            updateDemoPulseAnimation();
+        } else {
+            cancelDemoPulseAnimation();
+        }
+        invalidate();
+    }
+
+    @Nullable
+    public BoardDemoConfig getDemoConfig() {
+        return demoConfig;
+    }
+
+    /**
      * Updates the board with a new {@link GameState} from {@code :game-core}.
      * Automatically triggers a light 175ms slide animation when a new move has been played.
      */
     public void setGameState(@Nullable GameState newState) {
+        this.demoConfig = null;
+        cancelDemoPulseAnimation();
+
         Move previousLastMove = this.gameState != null ? this.gameState.getLastMove() : null;
         Move nextLastMove = newState != null ? newState.getLastMove() : null;
         boolean shouldAnimate = hasRenderedInitialState
@@ -304,6 +355,12 @@ public class BoardView extends View {
         if (boardPx <= 0) {
             return;
         }
+
+        if (demoConfig != null) {
+            drawDemoBoard(canvas, demoConfig, boardPx);
+            return;
+        }
+
         float squareSize = boardPx / (float) Square.BOARD_SIZE;
 
         // 1. Draw 8x8 squares
@@ -336,6 +393,149 @@ public class BoardView extends View {
         drawLegalMoveIndicators(canvas, squareSize);
 
         // 6. Subtle outer frame border
+        drawOuterBorder(canvas, boardPx);
+    }
+
+    private void drawDemoBoard(@NonNull Canvas canvas,
+                               @NonNull BoardDemoConfig config,
+                               int boardPx) {
+        int gridSize = config.getGridSize();
+        int startRank = config.getStartRank();
+        int startFile = config.getStartFile();
+        float squareSize = boardPx / (float) gridSize;
+
+        // 1. Draw visible grid squares (5x5 or 8x8)
+        for (int rOff = 0; rOff < gridSize; rOff++) {
+            int rank = startRank + rOff;
+            for (int fOff = 0; fOff < gridSize; fOff++) {
+                int file = startFile + fOff;
+                boolean isLightSquare = ((rank + file) % 2) != 0;
+                getDemoSquareBounds(config, rank, file, squareSize, squareRect);
+                canvas.drawRect(squareRect, isLightSquare ? lightSquarePaint : darkSquarePaint);
+            }
+        }
+
+        // 2. Draw gentle pulsing highlights on key squares
+        int pulseAlpha = Math.max(25, Math.min(255, Math.round(baseHighlightAlpha * demoPulseFactor)));
+        demoPulsePaint.setAlpha(pulseAlpha);
+        for (Square sq : config.getPulsingSquares()) {
+            if (isSquareVisibleInDemo(config, sq)) {
+                getDemoSquareBounds(config, sq.rank(), sq.file(), squareSize, squareRect);
+                canvas.drawRect(squareRect, demoPulsePaint);
+            }
+        }
+
+        // 3. Draw pieces inside the visible demo window
+        Board board = config.getBoard();
+        for (int rOff = 0; rOff < gridSize; rOff++) {
+            int rank = startRank + rOff;
+            for (int fOff = 0; fOff < gridSize; fOff++) {
+                int file = startFile + fOff;
+                Piece piece = board.getPieceAt(rank, file);
+                if (piece != null) {
+                    getDemoSquareBounds(config, rank, file, squareSize, squareRect);
+                    drawPieceInRect(canvas, piece, squareRect);
+                }
+            }
+        }
+
+        // 4. Draw move dots and capture rings
+        float dotRadius = squareSize * 0.16f;
+        float ringStrokeWidth = squareSize * 0.085f;
+        float ringRadius = (squareSize * 0.43f) - (ringStrokeWidth / 2f);
+        captureRingPaint.setStrokeWidth(ringStrokeWidth);
+
+        for (Square dotSq : config.getMoveDotSquares()) {
+            if (isSquareVisibleInDemo(config, dotSq)) {
+                getDemoSquareBounds(config, dotSq.rank(), dotSq.file(), squareSize, squareRect);
+                canvas.drawCircle(squareRect.centerX(), squareRect.centerY(), dotRadius, moveDotPaint);
+            }
+        }
+        for (Square ringSq : config.getCaptureRingSquares()) {
+            if (isSquareVisibleInDemo(config, ringSq)) {
+                getDemoSquareBounds(config, ringSq.rank(), ringSq.file(), squareSize, squareRect);
+                canvas.drawCircle(squareRect.centerX(), squareRect.centerY(), ringRadius, captureRingPaint);
+            }
+        }
+
+        // 5. Draw directional arrows
+        for (BoardDemoConfig.Arrow arrow : config.getArrows()) {
+            if (isSquareVisibleInDemo(config, arrow.from()) && isSquareVisibleInDemo(config, arrow.to())) {
+                drawDemoArrow(canvas, config, arrow.from(), arrow.to(), squareSize);
+            }
+        }
+
+        // 6. Outer border
+        drawOuterBorder(canvas, boardPx);
+    }
+
+    private void drawDemoArrow(@NonNull Canvas canvas,
+                               @NonNull BoardDemoConfig config,
+                               @NonNull Square from,
+                               @NonNull Square to,
+                               float squareSize) {
+        getDemoSquareBounds(config, from.rank(), from.file(), squareSize, squareRect);
+        float startX = squareRect.centerX();
+        float startY = squareRect.centerY();
+
+        getDemoSquareBounds(config, to.rank(), to.file(), squareSize, squareRect);
+        float endX = squareRect.centerX();
+        float endY = squareRect.centerY();
+
+        float dx = endX - startX;
+        float dy = endY - startY;
+        float length = (float) Math.hypot(dx, dy);
+        if (length < 1f) {
+            return;
+        }
+
+        float ux = dx / length;
+        float uy = dy / length;
+
+        float startInset = squareSize * 0.24f;
+        float headLength = squareSize * 0.28f;
+        float headHalfWidth = squareSize * 0.16f;
+        float endInset = squareSize * 0.16f;
+
+        float lineStartX = startX + ux * startInset;
+        float lineStartY = startY + uy * startInset;
+        float tipX = endX - ux * endInset;
+        float tipY = endY - uy * endInset;
+        float baseX = tipX - ux * headLength;
+        float baseY = tipY - uy * headLength;
+
+        demoArrowLinePaint.setStrokeWidth(Math.max(dpToPx(2), squareSize * 0.09f));
+        canvas.drawLine(lineStartX, lineStartY, baseX, baseY, demoArrowLinePaint);
+
+        float perpX = -uy;
+        float perpY = ux;
+        arrowHeadPath.reset();
+        arrowHeadPath.moveTo(tipX, tipY);
+        arrowHeadPath.lineTo(baseX + perpX * headHalfWidth, baseY + perpY * headHalfWidth);
+        arrowHeadPath.lineTo(baseX - perpX * headHalfWidth, baseY - perpY * headHalfWidth);
+        arrowHeadPath.close();
+        canvas.drawPath(arrowHeadPath, demoArrowHeadPaint);
+    }
+
+    private boolean isSquareVisibleInDemo(@NonNull BoardDemoConfig config, @NonNull Square sq) {
+        int r = sq.rank() - config.getStartRank();
+        int f = sq.file() - config.getStartFile();
+        return r >= 0 && r < config.getGridSize() && f >= 0 && f < config.getGridSize();
+    }
+
+    private void getDemoSquareBounds(@NonNull BoardDemoConfig config,
+                                     int rank,
+                                     int file,
+                                     float squareSize,
+                                     @NonNull RectF outRect) {
+        int col = file - config.getStartFile();
+        int row = (config.getGridSize() - 1) - (rank - config.getStartRank());
+        float left = col * squareSize;
+        float top = row * squareSize;
+        outRect.set(left, top, left + squareSize, top + squareSize);
+    }
+
+    private void drawOuterBorder(@NonNull Canvas canvas, int boardPx) {
         float halfStroke = boardBorderPaint.getStrokeWidth() / 2f;
         canvas.drawRect(
                 halfStroke,
@@ -479,7 +679,7 @@ public class BoardView extends View {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        if (!interactionEnabled || gameState == null || gameState.isGameOver()) {
+        if (demoConfig != null || !interactionEnabled || gameState == null || gameState.isGameOver()) {
             return false;
         }
 
@@ -652,9 +852,41 @@ public class BoardView extends View {
         animationProgress = 1f;
     }
 
+    private void updateDemoPulseAnimation() {
+        cancelDemoPulseAnimation();
+        if (!isAttachedToWindow() || demoConfig == null || demoConfig.getPulsingSquares().isEmpty()) {
+            return;
+        }
+        ValueAnimator animator = ValueAnimator.ofFloat(0.45f, 1.15f);
+        animator.setDuration(DEMO_PULSE_DURATION_MS);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.addUpdateListener(anim -> {
+            demoPulseFactor = (float) anim.getAnimatedValue();
+            invalidate();
+        });
+        this.demoPulseAnimator = animator;
+        animator.start();
+    }
+
+    private void cancelDemoPulseAnimation() {
+        if (demoPulseAnimator != null) {
+            demoPulseAnimator.cancel();
+            demoPulseAnimator = null;
+        }
+        demoPulseFactor = 0.85f;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        updateDemoPulseAnimation();
+    }
+
     @Override
     protected void onDetachedFromWindow() {
         cancelMoveAnimation();
+        cancelDemoPulseAnimation();
         super.onDetachedFromWindow();
     }
 

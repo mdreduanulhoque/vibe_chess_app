@@ -31,14 +31,68 @@
     <!-- How to Play Screen -->
     <string name="how_to_play_title">How to Play</string>
     <string name="how_to_play_subtitle">Fast-paced timed chess with no check</string>
-    <string name="how_to_play_no_check_title">No Check, No Checkmate</string>
-    <string name="how_to_play_no_check_body">Pieces move just like standard chess, including castling, en passant, and pawn promotion. However, there is no check or checkmate — a king may move into an attacked square and can be captured like any other piece without ending the game!</string>
-    <string name="how_to_play_clock_title">Beat the Clock &amp; Win on Points</string>
-    <string name="how_to_play_clock_body">Each side gets 1 or 2 minutes total with no increment. Only the active side\'s clock runs. The moment either player\'s clock reaches 0, the game ends immediately and the player with more points on the board wins (equal points = draw).</string>
-    <string name="how_to_play_points_title">Piece Point Values</string>
-    <string name="how_to_play_points_body">Pawn = 1  •  Knight = 2  •  Bishop = 3\nRook = 4  •  Queen = 5  •  King = 7</string>
-    <string name="how_to_play_special_title">Live Probability &amp; Special Rules</string>
-    <string name="how_to_play_special_body">During play, raw point scores stay hidden and a live Win Probability bar shows who is ahead. Castling is allowed even through attacked squares as long as the king and rook have not moved and the path is clear (lost if the king is captured). If a side has no legal move, its turn is skipped while its clock keeps running.</string>
+    <string name="how_to_play_skip">Skip</string>
+    <string name="how_to_play_got_it">Got it</string>
+    <string name="how_to_play_before">1. Before</string>
+    <string name="how_to_play_after">2. After</string>
+    <string name="how_to_play_points_value_format">%1$d pts</string>
+    <string name="how_to_play_points_value_single_format">%1$d pt</string>
+    <string name="how_to_play_clock_active_sample" translatable="false">01:24</string>
+    <string name="how_to_play_clock_paused_sample" translatable="false">01:45</string>
+
+    <string name="how_to_play_sec1_title">1. Goal of the Game</string>
+    <string name="how_to_play_sec1_body">Have more points on the board when the clock reaches 0. Protect high-value pieces and capture enemy material to take the lead.</string>
+
+    <string name="how_to_play_sec2_title">2. Board &amp; Starting Setup</string>
+    <string name="how_to_play_sec2_body">Played on a standard 8×8 board with all 16 pieces per side. White always moves first from the bottom ranks.</string>
+
+    <string name="how_to_play_sec3_title">3. Pawn</string>
+    <string name="how_to_play_sec3_body">Moves 1 square forward (or 2 on its first move), and captures 1 square diagonally forward. Never captures straight ahead.</string>
+
+    <string name="how_to_play_sec4_title">4. Knight</string>
+    <string name="how_to_play_sec4_body">Moves in an L-shape (2 squares one way, then 1 to the side). It is the only piece that can jump over other pieces.</string>
+
+    <string name="how_to_play_sec5_title">5. Bishop</string>
+    <string name="how_to_play_sec5_body">Slides diagonally any number of unobstructed squares. Each bishop stays on squares of its starting color.</string>
+
+    <string name="how_to_play_sec6_title">6. Rook</string>
+    <string name="how_to_play_sec6_body">Slides horizontally or vertically any number of unobstructed squares along ranks and files.</string>
+
+    <string name="how_to_play_sec7_title">7. Queen</string>
+    <string name="how_to_play_sec7_body">Combines the power of Rook and Bishop: slides any unobstructed distance in a straight line or diagonally.</string>
+
+    <string name="how_to_play_sec8_title">8. King</string>
+    <string name="how_to_play_sec8_body">Moves 1 square in any direction (horizontal, vertical, or diagonal). Worth 7 points — the most valuable piece on the board.</string>
+
+    <string name="how_to_play_sec9_title">9. Capturing</string>
+    <string name="how_to_play_sec9_body">Land on an enemy piece\'s square to remove it from the board and reduce your opponent\'s total board points.</string>
+
+    <string name="how_to_play_sec10_title">10. Castling</string>
+    <string name="how_to_play_sec10_body">King moves 2 squares toward an unmoved Rook, and the Rook jumps over. Allowed even through attacked squares if the path is clear!</string>
+
+    <string name="how_to_play_sec11_title">11. En Passant</string>
+    <string name="how_to_play_sec11_body">If an enemy pawn advances 2 squares beside your pawn, you may capture it diagonally on the very next turn as if it moved 1 square.</string>
+
+    <string name="how_to_play_sec12_title">12. Pawn Promotion</string>
+    <string name="how_to_play_sec12_body">When a pawn reaches the last row, immediately promote it to a Queen, Rook, Bishop, or Knight to boost your board points.</string>
+
+    <string name="how_to_play_sec13_title">13. No Check, No Checkmate</string>
+    <string name="how_to_play_sec13_body">There is no check or checkmate! Kings can move onto attacked squares and be captured like any other piece — the game keeps going.</string>
+
+    <string name="how_to_play_sec14_title">14. Points Table</string>
+    <string name="how_to_play_sec14_body">Every piece left on the board counts toward your score: Pawn 1, Knight 2, Bishop 3, Rook 4, Queen 5, King 7.</string>
+
+    <string name="how_to_play_sec15_title">15. Timer</string>
+    <string name="how_to_play_sec15_body">Each side gets 1 or 2 minutes total with no increment. Your clock runs only during your own turn.</string>
+
+    <string name="how_to_play_sec16_title">16. How to Win</string>
+    <string name="how_to_play_sec16_body">When either clock hits 0, the game ends immediately. The side with more points on the board wins; equal points is a draw.</string>
+
+    <string name="how_to_play_sec17_title">17. No Legal Moves</string>
+    <string name="how_to_play_sec17_body">If a player has no legal moves on their turn, their turn is skipped while their clock continues running until time runs out.</string>
+
+    <string name="how_to_play_sec18_title">18. Winning Probability Bar</string>
+    <string name="how_to_play_sec18_body">Raw point totals stay hidden during play. Read the live orange-vs-dark bar to see who is ahead in material and remaining time.</string>
 
     <!-- Game Setup Screen -->
     <string name="setup_title">Game Setup</string>
@@ -97,10 +151,12 @@
     <string name="result_rematch">Rematch</string>
     <string name="result_home">Home</string>
 
-    <!-- Promotion Dialog -->
+    <!-- Promotion Dialog & Piece Names -->
     <string name="promotion_dialog_title">Promote Pawn</string>
-    <string name="piece_queen">Queen</string>
-    <string name="piece_rook">Rook</string>
-    <string name="piece_bishop">Bishop</string>
+    <string name="piece_pawn">Pawn</string>
     <string name="piece_knight">Knight</string>
+    <string name="piece_bishop">Bishop</string>
+    <string name="piece_rook">Rook</string>
+    <string name="piece_queen">Queen</string>
+    <string name="piece_king">King</string>
 </resources>

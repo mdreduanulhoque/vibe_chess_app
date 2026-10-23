@@ -14,10 +14,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.reduan.vibechess.R;
+import com.reduan.vibechess.data.SettingsPreferences;
+import com.reduan.vibechess.ui.howtoplay.HowToPlayFragment;
 
 /**
  * Minimalist splash screen displaying the "Vibe Chess" brand mark on orange/white
- * before transitioning to the Home screen.
+ * before transitioning to the "How to Play" tutorial on first launch or the Home screen
+ * on subsequent launches.
  */
 public class SplashFragment extends Fragment {
 
@@ -30,7 +33,14 @@ public class SplashFragment extends Fragment {
             NavController navController = Navigation.findNavController(view);
             if (navController.getCurrentDestination() != null
                     && navController.getCurrentDestination().getId() == R.id.splashFragment) {
-                navController.navigate(R.id.action_splash_to_home);
+                SettingsPreferences prefs = new SettingsPreferences(requireContext());
+                if (!prefs.hasSeenHowToPlay()) {
+                    prefs.setHasSeenHowToPlay(true);
+                    Bundle args = HowToPlayFragment.createArgs(true);
+                    navController.navigate(R.id.action_splash_to_how_to_play, args);
+                } else {
+                    navController.navigate(R.id.action_splash_to_home);
+                }
             }
         }
     };
