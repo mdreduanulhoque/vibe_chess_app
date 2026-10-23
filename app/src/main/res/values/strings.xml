@@ -20,7 +20,25 @@
     <string name="settings_language_bangla" translatable="false">বাংলা</string>
     <string name="settings_dark_mode_label">Dark Mode</string>
     <string name="settings_dark_mode_desc">Switch between light and dark theme</string>
+    <string name="settings_sound_label">Sound Effects</string>
+    <string name="settings_sound_desc">Play sounds for moves, captures, and low time</string>
+    <string name="settings_vibration_label">Vibration</string>
+    <string name="settings_vibration_desc">Haptic feedback when a piece is captured</string>
+    <string name="settings_rotate_opponent_label">Rotate opponent\'s pieces 180°</string>
+    <string name="settings_rotate_opponent_desc">Flip Black\'s pieces for two-player pass-and-play</string>
     <string name="settings_back">Back</string>
+
+    <!-- How to Play Screen -->
+    <string name="how_to_play_title">How to Play</string>
+    <string name="how_to_play_subtitle">Fast-paced timed chess with no check</string>
+    <string name="how_to_play_no_check_title">No Check, No Checkmate</string>
+    <string name="how_to_play_no_check_body">Pieces move just like standard chess, including castling, en passant, and pawn promotion. However, there is no check or checkmate — a king may move into an attacked square and can be captured like any other piece without ending the game!</string>
+    <string name="how_to_play_clock_title">Beat the Clock &amp; Win on Points</string>
+    <string name="how_to_play_clock_body">Each side gets 1 or 2 minutes total with no increment. Only the active side\'s clock runs. The moment either player\'s clock reaches 0, the game ends immediately and the player with more points on the board wins (equal points = draw).</string>
+    <string name="how_to_play_points_title">Piece Point Values</string>
+    <string name="how_to_play_points_body">Pawn = 1  •  Knight = 2  •  Bishop = 3\nRook = 4  •  Queen = 5  •  King = 7</string>
+    <string name="how_to_play_special_title">Live Probability &amp; Special Rules</string>
+    <string name="how_to_play_special_body">During play, raw point scores stay hidden and a live Win Probability bar shows who is ahead. Castling is allowed even through attacked squares as long as the king and rook have not moved and the path is clear (lost if the king is captured). If a side has no legal move, its turn is skipped while its clock keeps running.</string>
 
     <!-- Game Setup Screen -->
     <string name="setup_title">Game Setup</string>
@@ -63,6 +81,10 @@
     <string name="game_resume">Resume</string>
     <string name="game_turn_skipped_white">White has no legal moves — turn skipped</string>
     <string name="game_turn_skipped_black">Black has no legal moves — turn skipped</string>
+    <string name="game_exit_confirm_title">Leave Game?</string>
+    <string name="game_exit_confirm_message">Your current game is still in progress. Leaving now will end the match.</string>
+    <string name="game_exit_confirm_leave">Leave</string>
+    <string name="game_exit_confirm_stay">Stay</string>
 
     <!-- Result Screen -->
     <string name="result_title">Game Over</string>

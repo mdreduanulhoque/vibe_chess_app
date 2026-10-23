@@ -14,15 +14,33 @@
     <!-- Settings Screen Labels -->
     <string name="settings_title">সেটিংস</string>
     <string name="settings_language_label">ভাষা</string>
-    <string name="settings_language_system">সিস্টেম</string>
+    <string name="settings_language_system">সিস্টেম ডিফল্ট</string>
     <string name="settings_dark_mode_label">ডার্ক মোড</string>
-    <string name="settings_dark_mode_desc">লাইট ও ডার্ক থিম পরিবর্তন করুন</string>
+    <string name="settings_dark_mode_desc">লাইট ও ডার্ক থিমের মধ্যে পরিবর্তন করুন</string>
+    <string name="settings_sound_label">শব্দ (সাউন্ড ইফেক্ট)</string>
+    <string name="settings_sound_desc">চাল, ঘুঁটি ক্যাপচার ও কম সময়ের সতর্কবার্তার শব্দ</string>
+    <string name="settings_vibration_label">ভাইব্রেশন</string>
+    <string name="settings_vibration_desc">ঘুঁটি ক্যাপচার হলে হালকা কম্পন অনুভব করুন</string>
+    <string name="settings_rotate_opponent_label">প্রতিপক্ষের ঘুঁটি 180° ঘোরান</string>
+    <string name="settings_rotate_opponent_desc">দুই খেলোয়াড়ের অফলাইন খেলায় কালো ঘুঁটি উল্টে দেখান</string>
     <string name="settings_back">ফিরে যান</string>
+
+    <!-- How to Play Screen -->
+    <string name="how_to_play_title">খেলার নিয়মাবলি</string>
+    <string name="how_to_play_subtitle">চেক ও কিস্তিমাত ছাড়া দ্রুতগতির সময়ভিত্তিক দাবা</string>
+    <string name="how_to_play_no_check_title">কোনো চেক বা কিস্তিমাত নেই</string>
+    <string name="how_to_play_no_check_body">ঘুঁটির চাল সাধারণ দাবার মতোই (ক্যাসলিং, এন পাসান্ট ও বোড়ে প্রমোশনসহ)। তবে এখানে কোনো চেক বা কিস্তিমাত নেই — রাজা আক্রান্ত ঘরে যেতে পারে এবং যেকোনো ঘুঁটির মতোই রাজাকে ক্যাপচার করা যায়; রাজা কাটা গেলেও খেলা সাথে সাথে শেষ হয় না!</string>
+    <string name="how_to_play_clock_title">সময় ও পয়েন্টের লড়াই</string>
+    <string name="how_to_play_clock_body">প্রতি পক্ষ মোট 1 বা 2 মিনিট সময় পায় (কোনো অতিরিক্ত সময় যোগ হয় না)। যার চাল শুধু তার ঘড়িই চলে। যেকোনো এক পক্ষের সময় শূন্য (0) হওয়া মাত্র খেলা শেষ হয় এবং তখন বোর্ডে যার ঘুঁটির মোট পয়েন্ট বেশি থাকে সে জয়ী হয় (সমান পয়েন্ট হলে ড্র)।</string>
+    <string name="how_to_play_points_title">ঘুঁটির পয়েন্ট মান</string>
+    <string name="how_to_play_points_body">বোড়ে (Pawn) = 1  •  ঘোড়া (Knight) = 2  •  হাতি (Bishop) = 3\nনৌকা (Rook) = 4  •  মন্ত্রী (Queen) = 5  •  রাজা (King) = 7</string>
+    <string name="how_to_play_special_title">জয়ের সম্ভাবনা ও বিশেষ নিয়ম</string>
+    <string name="how_to_play_special_body">খেলা চলাকালীন সরাসরি পয়েন্ট দেখানো হয় না; বদলে জয়ের সম্ভাবনা বার (Win Probability Bar) দেখে বোঝা যায় কে এগিয়ে আছে। রাজা ও নৌকা না নড়ে থাকলে এবং মাঝের ঘর খালি থাকলে আক্রান্ত ঘরের ওপর দিয়েও ক্যাসলিং করা যায় (রাজা ক্যাপচার হলে ক্যাসলিংয়ের সুযোগ বাতিল হয়)। কোনো পক্ষের বৈধ চাল না থাকলে তার দান স্কিপ হয় কিন্তু তার ঘড়ি চলতে থাকে।</string>
 
     <!-- Game Setup Screen -->
     <string name="setup_title">খেলা সেটআপ</string>
     <string name="setup_subtitle_single_player">কম্পিউটারের বিরুদ্ধে একক খেলা</string>
-    <string name="setup_subtitle_multiplayer">পাস-অ্যান্ড-প্লে (২ জন খেলোয়াড়)</string>
+    <string name="setup_subtitle_multiplayer">পাস-অ্যান্ড-প্লে (2 জন খেলোয়াড়)</string>
     <string name="setup_color_label">আপনার ঘুঁটির রঙ</string>
     <string name="setup_color_white">সাদা</string>
     <string name="setup_color_black">কালো</string>
@@ -32,9 +50,9 @@
     <string name="setup_difficulty_medium">মাঝারি</string>
     <string name="setup_difficulty_hard">কঠিন</string>
     <string name="setup_time_label">প্রতি পক্ষের সময়</string>
-    <string name="setup_time_1_min">১ মিনিট</string>
-    <string name="setup_time_2_min">২ মিনিট</string>
-    <string name="setup_rotate_opponent_label">প্রতিপক্ষের ঘুঁটি ১৮০° ঘোরান</string>
+    <string name="setup_time_1_min">1 মিনিট</string>
+    <string name="setup_time_2_min">2 মিনিট</string>
+    <string name="setup_rotate_opponent_label">প্রতিপক্ষের ঘুঁটি 180° ঘোরান</string>
     <string name="setup_start_game">খেলা শুরু করুন</string>
 
     <!-- Game Screen -->
@@ -48,11 +66,11 @@
     <string name="game_turn_black">কালোর চাল</string>
     <string name="game_ai_thinking">এআই ভাবছে…</string>
     <string name="game_clock_placeholder">--:--</string>
-    <string name="game_win_probability_placeholder" formatted="false">জয়ের সম্ভাবনা (৫০% - ৫০%)</string>
+    <string name="game_win_probability_placeholder" formatted="false">জয়ের সম্ভাবনা (50% - 50%)</string>
     <string name="game_prob_white_format">সাদা %1$d%%</string>
     <string name="game_prob_black_format">কালো %1$d%%</string>
     <string name="game_captured_tray_placeholder">ক্যাপচার করা ঘুঁটি</string>
-    <string name="game_rotate_black_pieces">কালো ঘুঁটি ১৮০° ঘোরান</string>
+    <string name="game_rotate_black_pieces">কালো ঘুঁটি 180° ঘোরান</string>
     <string name="game_board_content_desc">দাবার বোর্ড</string>
     <string name="game_pause">বিরতি</string>
     <string name="game_paused_title">খেলা বিরতিতে আছে</string>
@@ -60,6 +78,10 @@
     <string name="game_resume">আবার শুরু করুন</string>
     <string name="game_turn_skipped_white">সাদার কোনো বৈধ চাল নেই — দান স্কিপ হয়েছে</string>
     <string name="game_turn_skipped_black">কালোর কোনো বৈধ চাল নেই — দান স্কিপ হয়েছে</string>
+    <string name="game_exit_confirm_title">খেলা ছেড়ে বের হবেন?</string>
+    <string name="game_exit_confirm_message">আপনার বর্তমান খেলাটি এখনো চলছে। এখন বের হয়ে গেলে এই ম্যাচটি শেষ হয়ে যাবে।</string>
+    <string name="game_exit_confirm_leave">বের হন</string>
+    <string name="game_exit_confirm_stay">খেলায় থাকুন</string>
 
     <!-- Result Screen -->
     <string name="result_title">খেলা শেষ</string>

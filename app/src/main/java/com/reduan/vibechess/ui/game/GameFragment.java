@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -17,6 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.reduan.vibechess.R;
@@ -33,7 +35,8 @@ import java.util.List;
 /**
  * Game screen hosting the custom {@link BoardView}, live chess clocks,
  * animated winning probability bar, captured-pieces trays, subtle AI thinking indicator,
- * and pause overlay. Supports both Single Player vs Computer and Multiplayer Pass-and-Play.
+ * sound/haptic feedback, leave-game confirmation dialog, and pause overlay.
+ * Supports both Single Player vs Computer and Multiplayer Pass-and-Play.
  * Portrait uses a stacked layout; landscape centers the board with side panels.
  */
 public class GameFragment extends Fragment {
@@ -45,10 +48,14 @@ public class GameFragment extends Fragment {
     public static final String ARG_RANDOM_COLOR_CHOICE = "arg_random_color_choice";
 
     private GameViewModel viewModel;
+    @Nullable
+    private GameSoundManager soundManager;
     private boolean isUpdatingSwitch = false;
     private boolean hasRenderedProbabilityOnce = false;
     @Nullable
     private AlertDialog activePromotionDialog;
+    @Nullable
+    private AlertDialog activeExitConfirmDialog;
 
     @NonNull
     public static Bundle createArgs(long initialClockMillis) {
@@ -83,6 +90,8 @@ public class GameFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        soundManager = new GameSoundManager(requireContext());
 
         long initialClockMillis = ChessClock.ONE_MINUTE_MILLIS;
         boolean singlePlayer = false;
@@ -185,10 +194,17 @@ public class GameFragment extends Fragment {
         TextView tvProbBlack = view.findViewById(R.id.tv_prob_black);
         WinProbabilityBarView winProbabilityBar = view.findViewById(R.id.win_probability_bar);
 
-        btnBack.setOnClickListener(v -> {
-            viewModel.onExitGame();
-            Navigation.findNavController(v).navigateUp();
-        });
+        btnBack.setOnClickListener(v -> handleBackNavigationRequest(view));
+        requireActivity().getOnBackPressedDispatcher().addCallback(
+                getViewLifecycleOwner(),
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        handleBackNavigationRequest(view);
+                    }
+                }
+        );
+
         btnPause.setOnClickListener(v -> viewModel.pauseGame());
         btnResume.setOnClickListener(v -> viewModel.resumeGame());
 
@@ -218,6 +234,19 @@ public class GameFragment extends Fragment {
                 switchRotateBlack.setChecked(rotate);
             }
             isUpdatingSwitch = false;
+        });
+
+        viewModel.getSoundEvent().observe(getViewLifecycleOwner(), event -> {
+            if (event == null || soundManager == null) {
+                return;
+            }
+            switch (event) {
+                case MOVE -> soundManager.playMove();
+                case CAPTURE -> soundManager.playCaptureAndHaptics(boardView);
+                case LOW_TIME_TICK -> soundManager.playLowTimeTick();
+                case GAME_END -> soundManager.playGameEnd();
+            }
+            viewModel.consumeSoundEvent();
         });
 
         viewModel.getAiThinking().observe(getViewLifecycleOwner(), thinking -> {
@@ -271,6 +300,7 @@ public class GameFragment extends Fragment {
 
             if (state.isGameOver() && viewModel.markResultNavigated()) {
                 dismissPromotionDialog();
+                dismissExitConfirmDialog();
                 Bundle resultArgs = ResultFragment.createArgs(
                         state.getResult(),
                         state.points(Color.WHITE),
@@ -309,6 +339,46 @@ public class GameFragment extends Fragment {
             Snackbar.make(view, msgRes, Snackbar.LENGTH_SHORT).show();
             viewModel.consumeSkippedTurnNotice();
         });
+    }
+
+    private void handleBackNavigationRequest(@NonNull View rootView) {
+        GameState current = viewModel != null ? viewModel.getGameState().getValue() : null;
+        if (current == null || current.isGameOver()) {
+            if (viewModel != null) {
+                viewModel.onExitGame();
+            }
+            Navigation.findNavController(rootView).navigateUp();
+            return;
+        }
+        showExitConfirmationDialog(rootView);
+    }
+
+    private void showExitConfirmationDialog(@NonNull View rootView) {
+        if (activeExitConfirmDialog != null && activeExitConfirmDialog.isShowing()) {
+            return;
+        }
+        activeExitConfirmDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.game_exit_confirm_title)
+                .setMessage(R.string.game_exit_confirm_message)
+                .setNegativeButton(R.string.game_exit_confirm_stay, (dialog, which) -> dialog.dismiss())
+                .setPositiveButton(R.string.game_exit_confirm_leave, (dialog, which) -> {
+                    dialog.dismiss();
+                    if (viewModel != null) {
+                        viewModel.onExitGame();
+                    }
+                    Navigation.findNavController(rootView).navigateUp();
+                })
+                .setOnDismissListener(dialog -> activeExitConfirmDialog = null)
+                .show();
+    }
+
+    private void dismissExitConfirmDialog() {
+        if (activeExitConfirmDialog != null) {
+            if (activeExitConfirmDialog.isShowing()) {
+                activeExitConfirmDialog.dismiss();
+            }
+            activeExitConfirmDialog = null;
+        }
     }
 
     @Override
@@ -422,6 +492,11 @@ public class GameFragment extends Fragment {
     @Override
     public void onDestroyView() {
         dismissPromotionDialog();
+        dismissExitConfirmDialog();
+        if (soundManager != null) {
+            soundManager.release();
+            soundManager = null;
+        }
         super.onDestroyView();
     }
 }

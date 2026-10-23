@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.reduan.vibechess.R;
 import com.reduan.vibechess.ui.setup.GameSetupFragment;
 
 /**
- * Home screen with 4 buttons: Single Player, Multiplayer, How to Play, and Settings.
+ * Home screen with 4 navigation actions: Single Player, Multiplayer, How to Play, and Settings.
+ * Minimalist orange/white UIU-inspired brand look supporting both portrait and landscape.
  */
 public class HomeFragment extends Fragment {
 
@@ -48,7 +48,7 @@ public class HomeFragment extends Fragment {
         });
 
         btnHowToPlay.setOnClickListener(v ->
-                Snackbar.make(v, R.string.placeholder_coming_soon, Snackbar.LENGTH_SHORT).show());
+                Navigation.findNavController(v).navigate(R.id.action_home_to_how_to_play));
 
         btnSettings.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_home_to_settings));

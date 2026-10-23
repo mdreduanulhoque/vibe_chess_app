@@ -18,8 +18,9 @@ import com.reduan.vibechess.R;
 import com.reduan.vibechess.data.SettingsPreferences;
 
 /**
- * Minimal Settings screen with Language (English / বাংলা / System) and Dark mode switch.
- * Both settings apply instantaneously and persist across restarts.
+ * Settings screen with Language (English / বাংলা / System), Dark mode,
+ * Sound effects, Vibration, and Rotate opponent's pieces 180°.
+ * All settings persist and apply immediately.
  */
 public class SettingsFragment extends Fragment {
 
@@ -39,10 +40,14 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        viewModel.refreshFromPreferences();
 
         MaterialButton btnBack = view.findViewById(R.id.btn_settings_back);
         RadioGroup rgLanguage = view.findViewById(R.id.rg_language);
         SwitchMaterial switchDarkMode = view.findViewById(R.id.switch_dark_mode);
+        SwitchMaterial switchSound = view.findViewById(R.id.switch_sound);
+        SwitchMaterial switchVibration = view.findViewById(R.id.switch_vibration);
+        SwitchMaterial switchRotateOpponent = view.findViewById(R.id.switch_rotate_opponent);
 
         btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
@@ -63,9 +68,37 @@ public class SettingsFragment extends Fragment {
         });
 
         viewModel.getDarkModeEnabled().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled == null) return;
             isUpdatingUi = true;
             if (switchDarkMode.isChecked() != enabled) {
                 switchDarkMode.setChecked(enabled);
+            }
+            isUpdatingUi = false;
+        });
+
+        viewModel.getSoundEnabled().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled == null) return;
+            isUpdatingUi = true;
+            if (switchSound.isChecked() != enabled) {
+                switchSound.setChecked(enabled);
+            }
+            isUpdatingUi = false;
+        });
+
+        viewModel.getVibrationEnabled().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled == null) return;
+            isUpdatingUi = true;
+            if (switchVibration.isChecked() != enabled) {
+                switchVibration.setChecked(enabled);
+            }
+            isUpdatingUi = false;
+        });
+
+        viewModel.getRotateOpponentPiecesEnabled().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled == null) return;
+            isUpdatingUi = true;
+            if (switchRotateOpponent.isChecked() != enabled) {
+                switchRotateOpponent.setChecked(enabled);
             }
             isUpdatingUi = false;
         });
@@ -84,10 +117,23 @@ public class SettingsFragment extends Fragment {
         });
 
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isUpdatingUi) {
-                return;
-            }
+            if (isUpdatingUi) return;
             viewModel.setDarkModeEnabled(isChecked);
+        });
+
+        switchSound.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingUi) return;
+            viewModel.setSoundEnabled(isChecked);
+        });
+
+        switchVibration.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingUi) return;
+            viewModel.setVibrationEnabled(isChecked);
+        });
+
+        switchRotateOpponent.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingUi) return;
+            viewModel.setRotateOpponentPiecesEnabled(isChecked);
         });
     }
 }

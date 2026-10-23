@@ -25,6 +25,25 @@
             app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintWidth_max="@dimen/content_max_width">
 
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="@dimen/home_badge_size"
+                android:layout_height="@dimen/home_badge_size"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_md"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/primary"
+                app:strokeWidth="@dimen/stroke_width">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:padding="@dimen/spacing_xs"
+                    android:src="@drawable/ic_piece_white_king" />
+
+            </com.google.android.material.card.MaterialCardView>
+
             <TextView
                 android:id="@+id/tv_home_title"
                 android:layout_width="wrap_content"

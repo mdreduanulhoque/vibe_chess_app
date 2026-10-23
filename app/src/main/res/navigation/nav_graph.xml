@@ -29,6 +29,9 @@
             android:id="@+id/action_home_to_game"
             app:destination="@id/gameFragment" />
         <action
+            android:id="@+id/action_home_to_how_to_play"
+            app:destination="@id/howToPlayFragment" />
+        <action
             android:id="@+id/action_home_to_settings"
             app:destination="@id/settingsFragment" />
     </fragment>
@@ -73,6 +76,12 @@
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="false" />
     </fragment>
+
+    <fragment
+        android:id="@+id/howToPlayFragment"
+        android:name="com.reduan.vibechess.ui.howtoplay.HowToPlayFragment"
+        android:label="@string/how_to_play_title"
+        tools:layout="@layout/fragment_how_to_play" />
 
     <fragment
         android:id="@+id/settingsFragment"

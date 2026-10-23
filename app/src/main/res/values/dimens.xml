@@ -21,6 +21,7 @@
     <dimen name="prob_bar_height">10dp</dimen>
     <dimen name="captured_tray_min_height">24dp</dimen>
     <dimen name="promotion_icon_size">40dp</dimen>
+    <dimen name="home_badge_size">56dp</dimen>
     <dimen name="side_panel_max_width">240dp</dimen>
     <dimen name="clock_min_width">96dp</dimen>
 

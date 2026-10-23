@@ -28,13 +28,21 @@ import java.util.Objects;
 /**
  * ViewModel holding the active {@link GameState} from {@code :game-core}, driving the chess clock
  * via {@link SystemClock#elapsedRealtime()} deltas (~10x/sec on the main thread), managing pause/resume,
- * and coordinating turns between White and Black {@link MoveSource} instances
+ * emitting sound/haptic events, and coordinating turns between White and Black {@link MoveSource} instances
  * ({@link LocalHumanMoveSource} and {@link AiMoveSource}).
  * Survives configuration changes (rotation) without clock drift or cancelling AI search.
  */
 public class GameViewModel extends AndroidViewModel {
 
+    public enum SoundEvent {
+        MOVE,
+        CAPTURE,
+        LOW_TIME_TICK,
+        GAME_END
+    }
+
     private static final long CLOCK_UPDATE_INTERVAL_MS = 100L;
+    private static final long LOW_TIME_THRESHOLD_MS = 10_000L;
 
     private final SettingsPreferences settingsPreferences;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -54,6 +62,7 @@ public class GameViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> pausedLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> aiThinkingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Color> skippedTurnNoticeLiveData = new MutableLiveData<>(null);
+    private final MutableLiveData<SoundEvent> soundEventLiveData = new MutableLiveData<>(null);
 
     private boolean initialized = false;
     private boolean clockRunning = false;
@@ -213,6 +222,15 @@ public class GameViewModel extends AndroidViewModel {
         return aiThinkingLiveData;
     }
 
+    @NonNull
+    public LiveData<SoundEvent> getSoundEvent() {
+        return soundEventLiveData;
+    }
+
+    public void consumeSoundEvent() {
+        soundEventLiveData.setValue(null);
+    }
+
     /**
      * Pauses the active game clock, cancels any running AI computation cleanly,
      * and hides the board behind the pause overlay.
@@ -318,6 +336,7 @@ public class GameViewModel extends AndroidViewModel {
         pendingPromotionMovesLiveData.setValue(null);
 
         GameState nextState = current.applyMove(move);
+        soundEventLiveData.setValue(move.isCapture() ? SoundEvent.CAPTURE : SoundEvent.MOVE);
 
         // Per PROJECT_SPEC.md: if a side has no legal move, its turn is skipped and its clock keeps running.
         if (!nextState.isGameOver() && !nextState.hasLegalMoves()) {
@@ -349,10 +368,23 @@ public class GameViewModel extends AndroidViewModel {
             return;
         }
 
+        Color activeSide = current.getClock().getActiveSide();
+        long prevRemaining = current.getClock().getRemainingMillis(activeSide);
+
         GameState ticked = current.tick(delta);
         gameStateLiveData.setValue(ticked);
         if (ticked.isGameOver()) {
+            soundEventLiveData.setValue(SoundEvent.GAME_END);
             onGameEnded();
+        } else {
+            long newRemaining = ticked.getClock().getRemainingMillis(activeSide);
+            if (newRemaining > 0L && newRemaining <= LOW_TIME_THRESHOLD_MS) {
+                int prevWholeSec = (int) Math.ceil(prevRemaining / 1000.0);
+                int newWholeSec = (int) Math.ceil(newRemaining / 1000.0);
+                if (newWholeSec < prevWholeSec) {
+                    soundEventLiveData.setValue(SoundEvent.LOW_TIME_TICK);
+                }
+            }
         }
     }
 

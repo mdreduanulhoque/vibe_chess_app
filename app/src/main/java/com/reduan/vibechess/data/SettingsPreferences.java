@@ -8,14 +8,17 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 /**
- * Manages persisted user settings (Dark mode and Language) using SharedPreferences
- * and applies them at runtime via {@link AppCompatDelegate}.
+ * Manages persisted user settings (Language, Dark mode, Sound, Vibration,
+ * and Rotate opponent's pieces 180°) using SharedPreferences and applies
+ * theme/locale changes immediately via {@link AppCompatDelegate}.
  */
 public class SettingsPreferences {
 
     private static final String PREFS_NAME = "vibe_chess_settings";
     private static final String KEY_DARK_MODE = "dark_mode_enabled";
     private static final String KEY_LANGUAGE_TAG = "language_tag";
+    private static final String KEY_SOUND_ENABLED = "sound_enabled";
+    private static final String KEY_VIBRATION_ENABLED = "vibration_enabled";
     private static final String KEY_ROTATE_OPPONENT_PIECES = "rotate_opponent_pieces";
 
     public static final String LANG_SYSTEM = "";
@@ -72,6 +75,34 @@ public class SettingsPreferences {
     public void setLanguageTag(@NonNull String languageTag) {
         prefs.edit().putString(KEY_LANGUAGE_TAG, languageTag).apply();
         applyLanguage(languageTag);
+    }
+
+    /**
+     * Returns whether sound effects are enabled (default true).
+     */
+    public boolean isSoundEnabled() {
+        return prefs.getBoolean(KEY_SOUND_ENABLED, true);
+    }
+
+    /**
+     * Persists whether sound effects are enabled.
+     */
+    public void setSoundEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply();
+    }
+
+    /**
+     * Returns whether haptic vibration feedback is enabled (default true).
+     */
+    public boolean isVibrationEnabled() {
+        return prefs.getBoolean(KEY_VIBRATION_ENABLED, true);
+    }
+
+    /**
+     * Persists whether haptic vibration feedback is enabled.
+     */
+    public void setVibrationEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_VIBRATION_ENABLED, enabled).apply();
     }
 
     /**
