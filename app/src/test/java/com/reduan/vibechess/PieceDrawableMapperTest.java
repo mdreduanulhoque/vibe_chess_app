@@ -54,4 +54,23 @@ public class PieceDrawableMapperTest {
             assertNotEquals(0, PieceDrawableMapper.getPromotionPieceLabelRes(type));
         }
     }
+
+    @Test
+    public void accessibilityPieceAndColorLabelsMapToDistinctResources() {
+        Set<Integer> typeLabelIds = new HashSet<>();
+        for (PieceType type : PieceType.values()) {
+            int resId = PieceDrawableMapper.getPieceTypeLabelRes(type);
+            assertNotEquals(0, resId);
+            typeLabelIds.add(resId);
+        }
+        assertEquals(6, typeLabelIds.size());
+
+        Set<Integer> colorLabelIds = new HashSet<>();
+        for (Color color : Color.values()) {
+            int resId = PieceDrawableMapper.getColorLabelRes(color);
+            assertNotEquals(0, resId);
+            colorLabelIds.add(resId);
+        }
+        assertEquals(2, colorLabelIds.size());
+    }
 }

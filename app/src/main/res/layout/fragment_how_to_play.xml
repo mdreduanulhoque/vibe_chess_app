@@ -38,7 +38,7 @@
                     android:text="@string/settings_back" />
 
                 <LinearLayout
-                    android:layout_width="@dimen/zero_dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_sm"
                     android:layout_marginEnd="@dimen/spacing_sm"

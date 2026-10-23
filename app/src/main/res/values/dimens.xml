@@ -12,9 +12,11 @@
     <dimen name="corner_radius_md">14dp</dimen>
     <dimen name="corner_radius_lg">20dp</dimen>
     <dimen name="button_height">56dp</dimen>
-    <dimen name="button_height_compact">40dp</dimen>
+    <dimen name="button_height_compact">48dp</dimen>
+    <dimen name="touch_target_min">48dp</dimen>
     <dimen name="button_min_width">220dp</dimen>
     <dimen name="content_max_width">420dp</dimen>
+    <dimen name="result_land_max_width">760dp</dimen>
     <dimen name="stroke_width">1dp</dimen>
     <dimen name="zero_dp">0dp</dimen>
 

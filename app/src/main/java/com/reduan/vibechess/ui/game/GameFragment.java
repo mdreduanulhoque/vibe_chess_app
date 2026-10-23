@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
@@ -37,7 +38,8 @@ import java.util.List;
  * animated winning probability bar, captured-pieces trays, subtle AI thinking indicator,
  * sound/haptic feedback, leave-game confirmation dialog, and pause overlay.
  * Supports both Single Player vs Computer and Multiplayer Pass-and-Play.
- * Portrait uses a stacked layout; landscape centers the board with side panels.
+ * Portrait uses a stacked layout; landscape and tablet layouts position the board
+ * left/center with clocks and probability bar on the sides.
  */
 public class GameFragment extends Fragment {
 
@@ -47,15 +49,22 @@ public class GameFragment extends Fragment {
     public static final String ARG_AI_DIFFICULTY = "arg_ai_difficulty";
     public static final String ARG_RANDOM_COLOR_CHOICE = "arg_random_color_choice";
 
+    private static final String STATE_EXIT_DIALOG_SHOWING = "state_exit_dialog_showing";
+
     private GameViewModel viewModel;
     @Nullable
     private GameSoundManager soundManager;
+    @Nullable
+    private BoardView boundBoardView;
     private boolean isUpdatingSwitch = false;
     private boolean hasRenderedProbabilityOnce = false;
+    private int lastRenderedCapturedCount = -1;
+    private int lastRenderedWhiteProbPercent = -1;
     @Nullable
     private AlertDialog activePromotionDialog;
     @Nullable
     private AlertDialog activeExitConfirmDialog;
+    private boolean exitDialogShowingBeforeRecreate = false;
 
     @NonNull
     public static Bundle createArgs(long initialClockMillis) {
@@ -92,6 +101,8 @@ public class GameFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         soundManager = new GameSoundManager(requireContext());
+        exitDialogShowingBeforeRecreate = savedInstanceState != null
+                && savedInstanceState.getBoolean(STATE_EXIT_DIALOG_SHOWING, false);
 
         long initialClockMillis = ChessClock.ONE_MINUTE_MILLIS;
         boolean singlePlayer = false;
@@ -132,6 +143,8 @@ public class GameFragment extends Fragment {
                 randomColorChoice
         );
         hasRenderedProbabilityOnce = false;
+        lastRenderedCapturedCount = -1;
+        lastRenderedWhiteProbPercent = -1;
 
         MaterialButton btnBack = view.findViewById(R.id.btn_game_back);
         MaterialButton btnPause = view.findViewById(R.id.btn_game_pause);
@@ -140,6 +153,7 @@ public class GameFragment extends Fragment {
         TextView tvTurnIndicator = view.findViewById(R.id.tv_turn_indicator);
         SwitchMaterial switchRotateBlack = view.findViewById(R.id.switch_rotate_black);
         BoardView boardView = view.findViewById(R.id.board_view);
+        boundBoardView = boardView;
         View pauseOverlay = view.findViewById(R.id.pause_overlay);
 
         // Layout top and bottom player cards
@@ -262,7 +276,7 @@ public class GameFragment extends Fragment {
             boolean isPaused = Boolean.TRUE.equals(paused);
             pauseOverlay.setVisibility(isPaused ? View.VISIBLE : View.GONE);
             btnPause.setEnabled(!isPaused);
-            boardView.setInteractionEnabled(viewModel.isCurrentTurnHumanInteractive());
+            updateBoardInteractivity(boardView);
             if (isPaused) {
                 pbAiThinking.setVisibility(View.GONE);
                 dismissPromotionDialog();
@@ -280,7 +294,7 @@ public class GameFragment extends Fragment {
                 return;
             }
             boardView.setGameState(state);
-            boardView.setInteractionEnabled(viewModel.isCurrentTurnHumanInteractive());
+            updateBoardInteractivity(boardView);
 
             boolean isAiThinking = Boolean.TRUE.equals(viewModel.getAiThinking().getValue())
                     && !viewModel.isPaused();
@@ -311,7 +325,7 @@ public class GameFragment extends Fragment {
                         viewModel.getAiDifficulty(),
                         viewModel.isRandomColorChoice()
                 );
-                Navigation.findNavController(view).navigate(R.id.action_game_to_result, resultArgs);
+                navigateToResultSafely(view, resultArgs);
             }
         });
 
@@ -319,6 +333,7 @@ public class GameFragment extends Fragment {
 
         viewModel.getPendingPromotionMoves().observe(getViewLifecycleOwner(), promotionMoves -> {
             dismissPromotionDialog();
+            updateBoardInteractivity(boardView);
             GameState state = viewModel.getGameState().getValue();
             if (!viewModel.isPaused()
                     && promotionMoves != null
@@ -339,6 +354,43 @@ public class GameFragment extends Fragment {
             Snackbar.make(view, msgRes, Snackbar.LENGTH_SHORT).show();
             viewModel.consumeSkippedTurnNotice();
         });
+
+        if (exitDialogShowingBeforeRecreate) {
+            GameState state = viewModel.getGameState().getValue();
+            if (state != null && !state.isGameOver()) {
+                showExitConfirmationDialog(view);
+            }
+        }
+    }
+
+    private void updateBoardInteractivity(@NonNull BoardView boardView) {
+        List<Move> pendingPromotions = viewModel.getPendingPromotionMoves().getValue();
+        boolean hasPendingPromotion = pendingPromotions != null && !pendingPromotions.isEmpty();
+        boardView.setInteractionEnabled(
+                viewModel.isCurrentTurnHumanInteractive() && !hasPendingPromotion
+        );
+    }
+
+    private void navigateToResultSafely(@NonNull View rootView, @NonNull Bundle resultArgs) {
+        if (!isAdded()) {
+            return;
+        }
+        NavController navController = Navigation.findNavController(rootView);
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getAction(R.id.action_game_to_result) != null) {
+            navController.navigate(R.id.action_game_to_result, resultArgs);
+        }
+    }
+
+    private void navigateUpSafely(@NonNull View rootView) {
+        if (!isAdded()) {
+            return;
+        }
+        NavController navController = Navigation.findNavController(rootView);
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.gameFragment) {
+            navController.navigateUp();
+        }
     }
 
     private void handleBackNavigationRequest(@NonNull View rootView) {
@@ -347,7 +399,7 @@ public class GameFragment extends Fragment {
             if (viewModel != null) {
                 viewModel.onExitGame();
             }
-            Navigation.findNavController(rootView).navigateUp();
+            navigateUpSafely(rootView);
             return;
         }
         showExitConfirmationDialog(rootView);
@@ -366,7 +418,7 @@ public class GameFragment extends Fragment {
                     if (viewModel != null) {
                         viewModel.onExitGame();
                     }
-                    Navigation.findNavController(rootView).navigateUp();
+                    navigateUpSafely(rootView);
                 })
                 .setOnDismissListener(dialog -> activeExitConfirmDialog = null)
                 .show();
@@ -382,9 +434,24 @@ public class GameFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        boolean exitDialogShowing = activeExitConfirmDialog != null && activeExitConfirmDialog.isShowing();
+        outState.putBoolean(STATE_EXIT_DIALOG_SHOWING, exitDialogShowing);
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         // Auto-pause when the app goes to background, but NOT on device rotation
+        if (viewModel != null && !requireActivity().isChangingConfigurations()) {
+            viewModel.pauseGame();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         if (viewModel != null && !requireActivity().isChangingConfigurations()) {
             viewModel.pauseGame();
         }
@@ -444,15 +511,25 @@ public class GameFragment extends Fragment {
                                         @NonNull TextView tvProbBlack,
                                         @NonNull WinProbabilityBarView winProbabilityBar) {
         WinProbability prob = WinProbability.compute(state);
-        tvProbWhite.setText(getString(R.string.game_prob_white_format, prob.getWhitePercent()));
+        int whitePct = prob.getWhitePercent();
+        if (hasRenderedProbabilityOnce && whitePct == lastRenderedWhiteProbPercent) {
+            return;
+        }
+        lastRenderedWhiteProbPercent = whitePct;
+        tvProbWhite.setText(getString(R.string.game_prob_white_format, whitePct));
         tvProbBlack.setText(getString(R.string.game_prob_black_format, prob.getBlackPercent()));
-        winProbabilityBar.setWhitePercent(prob.getWhitePercent(), hasRenderedProbabilityOnce);
+        winProbabilityBar.setWhitePercent(whitePct, hasRenderedProbabilityOnce);
         hasRenderedProbabilityOnce = true;
     }
 
     private void updateCapturedTraysUi(@NonNull GameState state,
                                        @NonNull CapturedPiecesTrayView trayCapturedWhite,
                                        @NonNull CapturedPiecesTrayView trayCapturedBlack) {
+        int capturedCount = state.getCapturedPieces().size();
+        if (capturedCount == lastRenderedCapturedCount) {
+            return;
+        }
+        lastRenderedCapturedCount = capturedCount;
         // White's tray displays the Black pieces captured by White; Black's tray displays White pieces captured by Black
         trayCapturedWhite.setCapturedPieces(state.getCapturedPiecesOfColor(Color.BLACK));
         trayCapturedBlack.setCapturedPieces(state.getCapturedPiecesOfColor(Color.WHITE));
@@ -491,6 +568,12 @@ public class GameFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if (boundBoardView != null) {
+            boundBoardView.setOnSquareSelectedListener(null);
+            boundBoardView.setOnMoveSelectedListener(null);
+            boundBoardView.setOnPromotionRequestedListener(null);
+            boundBoardView = null;
+        }
         dismissPromotionDialog();
         dismissExitConfirmDialog();
         if (soundManager != null) {

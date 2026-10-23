@@ -383,6 +383,7 @@ public class HowToPlayFragment extends Fragment {
 
         ImageView icon = new ImageView(context);
         icon.setImageResource(PieceDrawableMapper.getDrawableRes(Color.WHITE, type));
+        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(icon, new LinearLayout.LayoutParams(iconSize, iconSize));
 
         TextView nameText = new TextView(context);

@@ -39,18 +39,29 @@ public class HomeFragment extends Fragment {
 
         btnSinglePlayer.setOnClickListener(v -> {
             Bundle args = GameSetupFragment.createArgs(true);
-            Navigation.findNavController(v).navigate(R.id.action_home_to_setup, args);
+            navigateSafely(v, R.id.action_home_to_setup, args);
         });
 
         btnMultiplayer.setOnClickListener(v -> {
             Bundle args = GameSetupFragment.createArgs(false);
-            Navigation.findNavController(v).navigate(R.id.action_home_to_setup, args);
+            navigateSafely(v, R.id.action_home_to_setup, args);
         });
 
         btnHowToPlay.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_home_to_how_to_play));
+                navigateSafely(v, R.id.action_home_to_how_to_play, null));
 
         btnSettings.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_home_to_settings));
+                navigateSafely(v, R.id.action_home_to_settings, null));
+    }
+
+    private void navigateSafely(@NonNull View view, int actionId, @Nullable Bundle args) {
+        if (!isAdded()) {
+            return;
+        }
+        var navController = Navigation.findNavController(view);
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getAction(actionId) != null) {
+            navController.navigate(actionId, args);
+        }
     }
 }

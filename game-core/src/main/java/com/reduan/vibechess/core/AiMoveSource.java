@@ -130,7 +130,7 @@ public final class AiMoveSource implements MoveSource {
 
         cancelInternal(false);
 
-        if (state.isGameOver() || !state.hasLegalMoves()) {
+        if (backgroundExecutor.isShutdown() || state.isGameOver() || !state.hasLegalMoves()) {
             thinking = false;
             callbackExecutor.execute(() -> thinkingListener.onThinkingChanged(false));
             return;
@@ -147,11 +147,18 @@ public final class AiMoveSource implements MoveSource {
         activeFuture = backgroundExecutor.submit(() -> {
             Move chosenMove = null;
             try {
-                if (requestCounter.get() != requestId || Thread.currentThread().isInterrupted()) {
+                // Clear any leftover interrupt flag from a previously cancelled task on this worker thread
+                if (requestCounter.get() == requestId) {
+                    Thread.interrupted();
+                } else {
+                    Thread.interrupted();
                     return;
                 }
                 chosenMove = aiEngine.chooseMove(state, difficulty);
             } finally {
+                if (requestCounter.get() != requestId) {
+                    Thread.interrupted();
+                }
                 final Move resultMove = chosenMove;
                 callbackExecutor.execute(() -> {
                     synchronized (AiMoveSource.this) {

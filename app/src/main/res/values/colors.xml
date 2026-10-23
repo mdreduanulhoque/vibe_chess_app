@@ -23,5 +23,5 @@
     <!-- Splash & UI supporting tokens -->
     <color name="splash_background">#F26A1B</color>
     <color name="splash_text">#FFFFFF</color>
-    <color name="stroke_subtle">#261F1F1F</color>
+    <color name="stroke_subtle">#331F1F1F</color>
 </resources>

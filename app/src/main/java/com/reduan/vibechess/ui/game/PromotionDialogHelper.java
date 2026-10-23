@@ -16,6 +16,7 @@ import com.reduan.vibechess.core.Move;
 import com.reduan.vibechess.core.PieceType;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Displays the minimalist Pawn Promotion picker dialog (Queen, Rook, Bishop, Knight)
@@ -51,20 +52,26 @@ public final class PromotionDialogHelper {
         ivBishop.setImageResource(PieceDrawableMapper.getDrawableRes(sideToMove, PieceType.BISHOP));
         ivKnight.setImageResource(PieceDrawableMapper.getDrawableRes(sideToMove, PieceType.KNIGHT));
 
+        AtomicBoolean selectionHandled = new AtomicBoolean(false);
+
         AlertDialog dialog = new MaterialAlertDialogBuilder(context)
                 .setView(contentView)
                 .setCancelable(true)
-                .setOnCancelListener(d -> callback.onPromotionCancelled())
+                .setOnCancelListener(d -> {
+                    if (selectionHandled.compareAndSet(false, true)) {
+                        callback.onPromotionCancelled();
+                    }
+                })
                 .create();
 
         bindChoice(contentView.findViewById(R.id.card_promote_queen),
-                PieceType.QUEEN, promotionMoves, dialog, callback);
+                PieceType.QUEEN, promotionMoves, dialog, selectionHandled, callback);
         bindChoice(contentView.findViewById(R.id.card_promote_rook),
-                PieceType.ROOK, promotionMoves, dialog, callback);
+                PieceType.ROOK, promotionMoves, dialog, selectionHandled, callback);
         bindChoice(contentView.findViewById(R.id.card_promote_bishop),
-                PieceType.BISHOP, promotionMoves, dialog, callback);
+                PieceType.BISHOP, promotionMoves, dialog, selectionHandled, callback);
         bindChoice(contentView.findViewById(R.id.card_promote_knight),
-                PieceType.KNIGHT, promotionMoves, dialog, callback);
+                PieceType.KNIGHT, promotionMoves, dialog, selectionHandled, callback);
 
         dialog.show();
         return dialog;
@@ -74,8 +81,15 @@ public final class PromotionDialogHelper {
                                    @NonNull PieceType pieceType,
                                    @NonNull List<Move> promotionMoves,
                                    @NonNull AlertDialog dialog,
+                                   @NonNull AtomicBoolean selectionHandled,
                                    @NonNull PromotionSelectionCallback callback) {
+        cardView.setContentDescription(
+                cardView.getContext().getString(PieceDrawableMapper.getPromotionPieceLabelRes(pieceType))
+        );
         cardView.setOnClickListener(v -> {
+            if (!selectionHandled.compareAndSet(false, true)) {
+                return;
+            }
             Move chosen = findMoveForPromotion(promotionMoves, pieceType);
             dialog.dismiss();
             if (chosen != null) {

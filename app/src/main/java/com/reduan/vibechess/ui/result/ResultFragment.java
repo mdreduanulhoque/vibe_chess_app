@@ -175,6 +175,14 @@ public class ResultFragment extends Fragment {
         final boolean rematchRandomColor = randomColorChoice;
 
         btnRematch.setOnClickListener(v -> {
+            if (!isAdded()) {
+                return;
+            }
+            var navController = Navigation.findNavController(v);
+            if (navController.getCurrentDestination() == null
+                    || navController.getCurrentDestination().getAction(R.id.action_result_to_game) == null) {
+                return;
+            }
             Bundle gameArgs;
             if (rematchSinglePlayer) {
                 Color nextColor = rematchRandomColor
@@ -189,10 +197,18 @@ public class ResultFragment extends Fragment {
             } else {
                 gameArgs = GameFragment.createArgs(rematchClockMillis);
             }
-            Navigation.findNavController(v).navigate(R.id.action_result_to_game, gameArgs);
+            navController.navigate(R.id.action_result_to_game, gameArgs);
         });
 
-        btnHome.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_result_to_home));
+        btnHome.setOnClickListener(v -> {
+            if (!isAdded()) {
+                return;
+            }
+            var navController = Navigation.findNavController(v);
+            if (navController.getCurrentDestination() != null
+                    && navController.getCurrentDestination().getAction(R.id.action_result_to_home) != null) {
+                navController.navigate(R.id.action_result_to_home);
+            }
+        });
     }
 }

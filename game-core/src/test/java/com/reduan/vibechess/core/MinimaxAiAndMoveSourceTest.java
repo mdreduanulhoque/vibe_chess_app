@@ -266,6 +266,18 @@ public class MinimaxAiAndMoveSourceTest {
             assertFalse(aiSource.isThinking());
             Thread.sleep(100L);
             assertNull("Cancelled request must not deliver a move", cancelledMoveRef.get());
+
+            // Verify worker thread is not stuck interrupted after cancel() (e.g. pause -> resume)
+            CountDownLatch resumeLatch = new CountDownLatch(1);
+            AtomicReference<Move> resumedMoveRef = new AtomicReference<>();
+            aiSource.requestMove(initial, move -> {
+                resumedMoveRef.set(move);
+                resumeLatch.countDown();
+            });
+            assertTrue("Resumed AiMoveSource request should complete within 2 seconds",
+                    resumeLatch.await(2, TimeUnit.SECONDS));
+            assertNotNull("Resumed request must deliver a valid move", resumedMoveRef.get());
+            assertTrue(initial.generateMoves().contains(resumedMoveRef.get()));
         } finally {
             aiSource.shutdown();
         }

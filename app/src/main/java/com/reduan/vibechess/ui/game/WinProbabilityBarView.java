@@ -31,7 +31,7 @@ public class WinProbabilityBarView extends View {
     private final Path clipPath = new Path();
 
     private float displayedWhiteFraction = 0.5f;
-    private float targetWhiteFraction = 0.5f;
+    private float targetWhiteFraction = -1f;
     @Nullable
     private ValueAnimator animator;
 
@@ -64,22 +64,27 @@ public class WinProbabilityBarView extends View {
                 context.getResources().getDimension(R.dimen.stroke_width)
         );
         borderPaint.setColor(ContextCompat.getColor(context, R.color.stroke_subtle));
+
+        setContentDescription(context.getString(R.string.game_win_probability_placeholder));
     }
 
     /**
      * Updates the target White winning percentage (0..100) and smoothly animates the split bar.
      */
     public void setWhitePercent(int whitePercent, boolean animate) {
-        float clamped = Math.max(0f, Math.min(1f, whitePercent / 100f));
+        int clampedPct = Math.max(0, Math.min(100, whitePercent));
+        float clamped = clampedPct / 100f;
         if (Math.abs(targetWhiteFraction - clamped) < 0.001f) {
             return;
         }
         targetWhiteFraction = clamped;
+        setContentDescription(getContext().getString(
+                R.string.a11y_win_probability,
+                clampedPct,
+                100 - clampedPct
+        ));
 
-        if (animator != null) {
-            animator.cancel();
-            animator = null;
-        }
+        cancelAnimator();
 
         if (!animate) {
             displayedWhiteFraction = clamped;
@@ -96,6 +101,15 @@ public class WinProbabilityBarView extends View {
         });
         this.animator = va;
         va.start();
+    }
+
+    private void cancelAnimator() {
+        if (animator != null) {
+            animator.removeAllUpdateListeners();
+            animator.removeAllListeners();
+            animator.cancel();
+            animator = null;
+        }
     }
 
     @Override
@@ -133,10 +147,7 @@ public class WinProbabilityBarView extends View {
 
     @Override
     protected void onDetachedFromWindow() {
-        if (animator != null) {
-            animator.cancel();
-            animator = null;
-        }
+        cancelAnimator();
         super.onDetachedFromWindow();
     }
 }

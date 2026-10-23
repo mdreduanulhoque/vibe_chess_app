@@ -11,20 +11,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 
+import com.reduan.vibechess.R;
+import com.reduan.vibechess.core.Color;
 import com.reduan.vibechess.core.Piece;
+import com.reduan.vibechess.core.PieceType;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * Renders a row of captured piece icons (icons only, no numbers).
  * Automatically adjusts horizontal spacing when many pieces are captured so all icons fit cleanly.
+ * Preloads piece drawables once at initialization so {@link #onDraw(Canvas)} performs zero allocations.
  */
 public class CapturedPiecesTrayView extends View {
 
     private static final int DEFAULT_ICON_SIZE_DP = 22;
+
+    private final Map<Color, Map<PieceType, Drawable>> drawableCache = new EnumMap<>(Color.class);
+    private int defaultIconSizePx;
 
     @NonNull
     private List<Piece> capturedPieces = List.of();
@@ -32,16 +41,37 @@ public class CapturedPiecesTrayView extends View {
 
     public CapturedPiecesTrayView(@NonNull Context context) {
         super(context);
+        init(context);
     }
 
     public CapturedPiecesTrayView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public CapturedPiecesTrayView(@NonNull Context context,
                                   @Nullable AttributeSet attrs,
                                   int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(@NonNull Context context) {
+        this.defaultIconSizePx = dpToPx(DEFAULT_ICON_SIZE_DP);
+        for (Color color : Color.values()) {
+            Map<PieceType, Drawable> byType = new EnumMap<>(PieceType.class);
+            for (PieceType type : PieceType.values()) {
+                Drawable d = AppCompatResources.getDrawable(
+                        context,
+                        PieceDrawableMapper.getDrawableRes(color, type)
+                );
+                if (d != null) {
+                    byType.put(type, d.mutate());
+                }
+            }
+            drawableCache.put(color, byType);
+        }
+        updateAccessibilityDescription();
     }
 
     /**
@@ -57,8 +87,26 @@ public class CapturedPiecesTrayView extends View {
         }
         if (!Objects.equals(this.capturedPieces, sorted)) {
             this.capturedPieces = sorted;
+            updateAccessibilityDescription();
             invalidate();
         }
+    }
+
+    private void updateAccessibilityDescription() {
+        Context context = getContext();
+        if (capturedPieces.isEmpty()) {
+            setContentDescription(context.getString(R.string.game_captured_tray_placeholder));
+            return;
+        }
+        StringBuilder names = new StringBuilder();
+        for (int i = 0, n = capturedPieces.size(); i < n; i++) {
+            if (i > 0) {
+                names.append(", ");
+            }
+            Piece piece = capturedPieces.get(i);
+            names.append(context.getString(PieceDrawableMapper.getPieceTypeLabelRes(piece.type())));
+        }
+        setContentDescription(context.getString(R.string.a11y_captured_tray_count, names.toString()));
     }
 
     public void setRotateIcons180(boolean rotate) {
@@ -70,9 +118,8 @@ public class CapturedPiecesTrayView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int defaultHeight = dpToPx(DEFAULT_ICON_SIZE_DP);
         int width = resolveSize(dpToPx(120), widthMeasureSpec);
-        int height = resolveSize(defaultHeight, heightMeasureSpec);
+        int height = resolveSize(defaultIconSizePx, heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
 
@@ -80,7 +127,8 @@ public class CapturedPiecesTrayView extends View {
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
-        if (capturedPieces.isEmpty()) {
+        int count = capturedPieces.size();
+        if (count == 0) {
             return;
         }
 
@@ -90,9 +138,7 @@ public class CapturedPiecesTrayView extends View {
             return;
         }
 
-        int iconSize = Math.min(height, dpToPx(DEFAULT_ICON_SIZE_DP));
-        int count = capturedPieces.size();
-
+        int iconSize = Math.min(height, defaultIconSizePx);
         float defaultStep = iconSize * 0.82f;
         float step;
         if (count <= 1 || iconSize + (count - 1) * defaultStep <= width) {
@@ -104,13 +150,10 @@ public class CapturedPiecesTrayView extends View {
         int top = (height - iconSize) / 2;
         int bottom = top + iconSize;
 
-        Context context = getContext();
         for (int i = 0; i < count; i++) {
             Piece piece = capturedPieces.get(i);
-            Drawable drawable = AppCompatResources.getDrawable(
-                    context,
-                    PieceDrawableMapper.getDrawableRes(piece)
-            );
+            Map<PieceType, Drawable> byType = drawableCache.get(piece.color());
+            Drawable drawable = byType != null ? byType.get(piece.type()) : null;
             if (drawable == null) {
                 continue;
             }

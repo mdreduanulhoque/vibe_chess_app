@@ -128,4 +128,61 @@ public class ScoringClockAndResultTest {
         assertEquals(46_000L, ticked.getClock().getWhiteRemainingMillis());
         assertTrue(ticked.hasLegalMoves());
     }
+
+    @Test
+    public void compactStringSerialization_roundTripsFullGameStateLosslessly() {
+        // 1. Initial state
+        GameState initial = GameState.initial(ChessClock.TWO_MINUTES_MILLIS);
+        GameState restoredInitial = GameState.fromCompactString(initial.toCompactString());
+        assertEquals(initial, restoredInitial);
+
+        // 2. Mid-game state with double pawn push (en passant target), capture, and ticked clock
+        GameState s1 = initial
+                .applyMove(Move.quiet(Square.fromAlgebraic("e2"), Square.fromAlgebraic("e4")))
+                .tick(1_250L);
+        GameState restoredS1 = GameState.fromCompactString(s1.toCompactString());
+        assertEquals(s1, restoredS1);
+        assertEquals(Square.fromAlgebraic("e3"), restoredS1.getEnPassantTarget());
+
+        GameState s2 = s1
+                .applyMove(Move.quiet(Square.fromAlgebraic("d7"), Square.fromAlgebraic("d5")))
+                .tick(980L)
+                .applyMove(Move.capture(Square.fromAlgebraic("e4"), Square.fromAlgebraic("d5")));
+        GameState restoredS2 = GameState.fromCompactString(s2.toCompactString());
+        assertEquals(s2, restoredS2);
+        assertEquals(1, restoredS2.getCapturedPieces().size());
+
+        // 3. Promotion + custom clock + castling rights
+        Board promoBoard = Board.empty()
+                .withPieceAt(Square.fromAlgebraic("e1"), Piece.of(Color.WHITE, PieceType.KING))
+                .withPieceAt(Square.fromAlgebraic("a7"), Piece.of(Color.WHITE, PieceType.PAWN))
+                .withPieceAt(Square.fromAlgebraic("b8"), Piece.of(Color.BLACK, PieceType.ROOK))
+                .withPieceAt(Square.fromAlgebraic("e8"), Piece.of(Color.BLACK, PieceType.KING));
+        GameState promoState = GameState.custom(
+                promoBoard,
+                Color.WHITE,
+                new CastlingRights(true, false, false, true),
+                null,
+                new ChessClock(60_000L, 12_345L, 45_678L, Color.WHITE)
+        ).applyMove(Move.promotion(Square.fromAlgebraic("a7"), Square.fromAlgebraic("b8"), PieceType.QUEEN, true));
+        GameState restoredPromo = GameState.fromCompactString(promoState.toCompactString());
+        assertEquals(promoState, restoredPromo);
+
+        // 4. Flagged game-over state
+        GameState flagged = s2.tick(200_000L);
+        assertTrue(flagged.isGameOver());
+        GameState restoredFlagged = GameState.fromCompactString(flagged.toCompactString());
+        assertEquals(flagged, restoredFlagged);
+
+        // 5. Malformed inputs throw IllegalArgumentException
+        for (String invalid : new String[]{null, "", "V2|bad"}) {
+            boolean threw = false;
+            try {
+                GameState.fromCompactString(invalid);
+            } catch (IllegalArgumentException expected) {
+                threw = true;
+            }
+            assertTrue("Expected IllegalArgumentException for: " + invalid, threw);
+        }
+    }
 }

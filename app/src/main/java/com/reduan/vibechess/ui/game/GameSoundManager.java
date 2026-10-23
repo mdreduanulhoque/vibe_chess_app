@@ -16,8 +16,8 @@ import androidx.annotation.Nullable;
 import com.reduan.vibechess.R;
 import com.reduan.vibechess.data.SettingsPreferences;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages lightweight game sound effects (move, capture, low-time tick, game end)
@@ -32,7 +32,7 @@ public final class GameSoundManager {
     private final SettingsPreferences settingsPreferences;
     @Nullable
     private SoundPool soundPool;
-    private final Set<Integer> loadedSamples = new HashSet<>();
+    private final Set<Integer> loadedSamples = ConcurrentHashMap.newKeySet();
 
     private int moveSoundId = 0;
     private int captureSoundId = 0;
@@ -151,6 +151,8 @@ public final class GameSoundManager {
         SoundPool pool = this.soundPool;
         this.soundPool = null;
         if (pool != null) {
+            pool.setOnLoadCompleteListener(null);
+            pool.autoPause();
             pool.release();
         }
     }

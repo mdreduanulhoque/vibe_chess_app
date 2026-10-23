@@ -47,6 +47,23 @@ public final class PieceDrawableMapper {
     }
 
     @StringRes
+    public static int getPieceTypeLabelRes(@NonNull PieceType type) {
+        return switch (type) {
+            case PAWN -> R.string.piece_pawn;
+            case KNIGHT -> R.string.piece_knight;
+            case BISHOP -> R.string.piece_bishop;
+            case ROOK -> R.string.piece_rook;
+            case QUEEN -> R.string.piece_queen;
+            case KING -> R.string.piece_king;
+        };
+    }
+
+    @StringRes
+    public static int getColorLabelRes(@NonNull Color color) {
+        return color == Color.WHITE ? R.string.game_player_white : R.string.game_player_black;
+    }
+
+    @StringRes
     public static int getPromotionPieceLabelRes(@NonNull PieceType type) {
         return switch (type) {
             case QUEEN -> R.string.piece_queen;

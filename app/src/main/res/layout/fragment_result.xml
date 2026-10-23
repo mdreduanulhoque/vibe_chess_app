@@ -88,7 +88,7 @@
                         <!-- White Final Points -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/card_score_white"
-                            android:layout_width="@dimen/zero_dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/spacing_xs"
                             android:layout_weight="1"
@@ -129,7 +129,7 @@
                         <!-- Black Final Points -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/card_score_black"
-                            android:layout_width="@dimen/zero_dp"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/spacing_xs"
                             android:layout_weight="1"

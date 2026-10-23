@@ -101,6 +101,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:checked="true"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_color_white"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -109,6 +110,7 @@
                             android:id="@+id/rb_color_black"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_color_black"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -117,6 +119,7 @@
                             android:id="@+id/rb_color_random"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_color_random"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -165,6 +168,7 @@
                             android:id="@+id/rb_difficulty_easy"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_difficulty_easy"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -174,6 +178,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:checked="true"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_difficulty_medium"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -182,6 +187,7 @@
                             android:id="@+id/rb_difficulty_hard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_difficulty_hard"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -230,6 +236,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:checked="true"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_time_1_min"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -238,6 +245,7 @@
                             android:id="@+id/rb_time_2_min"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:minHeight="@dimen/touch_target_min"
                             android:text="@string/setup_time_2_min"
                             android:textColor="@color/text"
                             app:buttonTint="@color/primary" />
@@ -268,7 +276,7 @@
                     android:padding="@dimen/spacing_md">
 
                     <TextView
-                        android:layout_width="@dimen/zero_dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/setup_rotate_opponent_label"
@@ -281,6 +289,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
+                        android:contentDescription="@string/setup_rotate_opponent_label"
+                        android:minWidth="@dimen/touch_target_min"
+                        android:minHeight="@dimen/touch_target_min"
                         app:thumbTint="@color/primary" />
 
                 </LinearLayout>

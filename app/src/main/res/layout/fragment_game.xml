@@ -9,7 +9,7 @@
     <!-- Top Header Bar: Back Button, Active Turn Indicator, Pause Button, Rotate Toggle -->
     <LinearLayout
         android:id="@+id/top_header_bar"
-        android:layout_width="@dimen/zero_dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -22,15 +22,15 @@
             style="@style/Widget.VibeChess.Button.Surface"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/button_height_compact"
-            android:minWidth="@dimen/zero_dp"
+            android:minHeight="@dimen/touch_target_min"
+            android:minWidth="@dimen/touch_target_min"
             android:paddingStart="@dimen/spacing_sm"
             android:paddingEnd="@dimen/spacing_sm"
             android:text="@string/settings_back"
             android:textSize="@dimen/text_caption" />
 
         <LinearLayout
-            android:layout_width="@dimen/zero_dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_xs"
             android:layout_marginEnd="@dimen/spacing_xs"
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:gravity="center"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:text="@string/game_turn_white"
                 android:textColor="@color/primary"
                 android:textSize="@dimen/text_caption"
@@ -68,8 +68,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/spacing_xs"
-            android:minHeight="@dimen/button_height_compact"
-            android:minWidth="@dimen/zero_dp"
+            android:minHeight="@dimen/touch_target_min"
+            android:minWidth="@dimen/touch_target_min"
             android:paddingStart="@dimen/spacing_sm"
             android:paddingEnd="@dimen/spacing_sm"
             android:text="@string/game_pause"
@@ -81,6 +81,8 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:contentDescription="@string/game_rotate_black_pieces"
+            android:minHeight="@dimen/touch_target_min"
+            android:minWidth="@dimen/touch_target_min"
             app:thumbTint="@color/primary" />
 
     </LinearLayout>
@@ -88,7 +90,7 @@
     <!-- Black Player Panel (Top: Player Label, Captured Tray Icons, Large Clock) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_player_black"
-        android:layout_width="@dimen/zero_dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_xs"
         app:cardBackgroundColor="@color/surface"
@@ -111,7 +113,7 @@
             android:paddingBottom="@dimen/spacing_xs">
 
             <LinearLayout
-                android:layout_width="@dimen/zero_dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_xs"
                 android:layout_weight="1"
@@ -119,8 +121,10 @@
 
                 <TextView
                     android:id="@+id/tv_label_black"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="@string/game_player_black"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_section_label"
@@ -131,7 +135,8 @@
                     android:id="@+id/tray_captured_black"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/captured_tray_min_height"
-                    android:layout_marginTop="@dimen/spacing_xxs" />
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:contentDescription="@string/game_captured_tray_placeholder" />
 
             </LinearLayout>
 
@@ -151,6 +156,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:minWidth="@dimen/clock_min_width"
                     android:paddingStart="@dimen/spacing_sm"
                     android:paddingTop="@dimen/spacing_xxs"
@@ -170,7 +176,7 @@
     <!-- Winning Probability Bar (White % vs Black %, smoothly animated, no raw points) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_probability_bar"
-        android:layout_width="@dimen/zero_dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_xs"
         app:cardBackgroundColor="@color/surface"
@@ -198,20 +204,24 @@
 
                 <TextView
                     android:id="@+id/tv_prob_white"
-                    android:layout_width="@dimen/zero_dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:ellipsize="end"
                     android:gravity="start"
+                    android:maxLines="1"
                     android:textColor="@color/primary"
                     android:textSize="@dimen/text_caption"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_prob_black"
-                    android:layout_width="@dimen/zero_dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:ellipsize="end"
                     android:gravity="end"
+                    android:maxLines="1"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_caption"
                     android:textStyle="bold" />
@@ -222,7 +232,8 @@
                 android:id="@+id/win_probability_bar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/prob_bar_height"
-                android:layout_marginTop="@dimen/spacing_xxs" />
+                android:layout_marginTop="@dimen/spacing_xxs"
+                android:contentDescription="@string/game_win_probability_placeholder" />
 
         </LinearLayout>
 
@@ -231,11 +242,13 @@
     <!-- Centered Square Chess BoardView -->
     <com.reduan.vibechess.ui.game.BoardView
         android:id="@+id/board_view"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_xs"
         android:layout_marginBottom="@dimen/spacing_xs"
         android:contentDescription="@string/game_board_content_desc"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toTopOf="@+id/card_player_white"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -245,8 +258,8 @@
     <!-- Opaque Pause Overlay hiding the board while paused -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/pause_overlay"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
@@ -291,6 +304,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_lg"
+                android:minHeight="@dimen/touch_target_min"
                 android:minWidth="@dimen/button_min_width"
                 android:text="@string/game_resume" />
 
@@ -301,7 +315,7 @@
     <!-- White Player Panel (Bottom: Player Label, Captured Tray Icons, Large Clock) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_player_white"
-        android:layout_width="@dimen/zero_dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="@dimen/corner_radius_md"
@@ -323,7 +337,7 @@
             android:paddingBottom="@dimen/spacing_xs">
 
             <LinearLayout
-                android:layout_width="@dimen/zero_dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/spacing_xs"
                 android:layout_weight="1"
@@ -331,8 +345,10 @@
 
                 <TextView
                     android:id="@+id/tv_label_white"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="@string/game_player_white"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_section_label"
@@ -343,7 +359,8 @@
                     android:id="@+id/tray_captured_white"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/captured_tray_min_height"
-                    android:layout_marginTop="@dimen/spacing_xxs" />
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:contentDescription="@string/game_captured_tray_placeholder" />
 
             </LinearLayout>
 
@@ -363,6 +380,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:minWidth="@dimen/clock_min_width"
                     android:paddingStart="@dimen/spacing_sm"
                     android:paddingTop="@dimen/spacing_xxs"

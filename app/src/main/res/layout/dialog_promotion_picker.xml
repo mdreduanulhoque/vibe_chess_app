@@ -28,12 +28,14 @@
         <!-- Queen -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_promote_queen"
-            android:layout_width="@dimen/zero_dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:layout_weight="1"
             android:clickable="true"
+            android:contentDescription="@string/piece_queen"
             android:focusable="true"
+            android:minHeight="@dimen/touch_target_min"
             app:cardBackgroundColor="@color/background"
             app:cardCornerRadius="@dimen/corner_radius_md"
             app:cardElevation="@dimen/zero_dp"
@@ -51,7 +53,7 @@
                     android:id="@+id/iv_promote_queen"
                     android:layout_width="@dimen/promotion_icon_size"
                     android:layout_height="@dimen/promotion_icon_size"
-                    android:contentDescription="@string/piece_queen" />
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -59,7 +61,7 @@
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:ellipsize="end"
                     android:gravity="center"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:text="@string/piece_queen"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_caption" />
@@ -69,12 +71,14 @@
         <!-- Rook -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_promote_rook"
-            android:layout_width="@dimen/zero_dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:layout_weight="1"
             android:clickable="true"
+            android:contentDescription="@string/piece_rook"
             android:focusable="true"
+            android:minHeight="@dimen/touch_target_min"
             app:cardBackgroundColor="@color/background"
             app:cardCornerRadius="@dimen/corner_radius_md"
             app:cardElevation="@dimen/zero_dp"
@@ -92,7 +96,7 @@
                     android:id="@+id/iv_promote_rook"
                     android:layout_width="@dimen/promotion_icon_size"
                     android:layout_height="@dimen/promotion_icon_size"
-                    android:contentDescription="@string/piece_rook" />
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -100,7 +104,7 @@
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:ellipsize="end"
                     android:gravity="center"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:text="@string/piece_rook"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_caption" />
@@ -110,12 +114,14 @@
         <!-- Bishop -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_promote_bishop"
-            android:layout_width="@dimen/zero_dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:layout_weight="1"
             android:clickable="true"
+            android:contentDescription="@string/piece_bishop"
             android:focusable="true"
+            android:minHeight="@dimen/touch_target_min"
             app:cardBackgroundColor="@color/background"
             app:cardCornerRadius="@dimen/corner_radius_md"
             app:cardElevation="@dimen/zero_dp"
@@ -133,7 +139,7 @@
                     android:id="@+id/iv_promote_bishop"
                     android:layout_width="@dimen/promotion_icon_size"
                     android:layout_height="@dimen/promotion_icon_size"
-                    android:contentDescription="@string/piece_bishop" />
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -141,7 +147,7 @@
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:ellipsize="end"
                     android:gravity="center"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:text="@string/piece_bishop"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_caption" />
@@ -151,11 +157,13 @@
         <!-- Knight -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_promote_knight"
-            android:layout_width="@dimen/zero_dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
+            android:contentDescription="@string/piece_knight"
             android:focusable="true"
+            android:minHeight="@dimen/touch_target_min"
             app:cardBackgroundColor="@color/background"
             app:cardCornerRadius="@dimen/corner_radius_md"
             app:cardElevation="@dimen/zero_dp"
@@ -173,7 +181,7 @@
                     android:id="@+id/iv_promote_knight"
                     android:layout_width="@dimen/promotion_icon_size"
                     android:layout_height="@dimen/promotion_icon_size"
-                    android:contentDescription="@string/piece_knight" />
+                    android:importantForAccessibility="no" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -181,7 +189,7 @@
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:ellipsize="end"
                     android:gravity="center"
-                    android:maxLines="1"
+                    android:maxLines="2"
                     android:text="@string/piece_knight"
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_caption" />

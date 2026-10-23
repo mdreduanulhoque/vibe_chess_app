@@ -4,170 +4,196 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:padding="@dimen/spacing_sm">
+    android:padding="@dimen/spacing_xs">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_left_panel_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.27" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_right_panel_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.73" />
 
     <!-- Left Side Panel: Navigation, Pause, Turn Status, Win Probability Bar, Rotate Switch -->
-    <LinearLayout
+    <ScrollView
         android:id="@+id/left_side_panel"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/board_view"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_left_panel_end"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="@dimen/side_panel_max_width">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_game_back"
-                style="@style/Widget.VibeChess.Button.Surface"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/button_height_compact"
-                android:minWidth="@dimen/zero_dp"
-                android:paddingStart="@dimen/spacing_sm"
-                android:paddingEnd="@dimen/spacing_sm"
-                android:text="@string/settings_back"
-                android:textSize="@dimen/text_caption" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_game_pause"
-                style="@style/Widget.VibeChess.Button.Surface"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_xs"
-                android:minHeight="@dimen/button_height_compact"
-                android:minWidth="@dimen/zero_dp"
-                android:paddingStart="@dimen/spacing_sm"
-                android:paddingEnd="@dimen/spacing_sm"
-                android:text="@string/game_pause"
-                android:textSize="@dimen/text_caption" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ProgressBar
-                android:id="@+id/pb_ai_thinking"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/spacing_xxs"
-                android:indeterminate="true"
-                android:indeterminateTint="@color/primary"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tv_turn_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/game_turn_white"
-                android:textColor="@color/primary"
-                android:textSize="@dimen/text_section_label"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <!-- Winning Probability Bar (White % vs Black %, smoothly animated, no raw points) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_probability_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="@dimen/corner_radius_sm"
-            app:cardElevation="@dimen/zero_dp"
-            app:strokeColor="@color/stroke_subtle"
-            app:strokeWidth="@dimen/stroke_width">
+            android:orientation="vertical"
+            android:paddingEnd="@dimen/spacing_xs">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_xs">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_game_back"
+                    style="@style/Widget.VibeChess.Button.Surface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/touch_target_min"
+                    android:minWidth="@dimen/touch_target_min"
+                    android:paddingStart="@dimen/spacing_xs"
+                    android:paddingEnd="@dimen/spacing_xs"
+                    android:text="@string/settings_back"
+                    android:textSize="@dimen/text_caption" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_game_pause"
+                    style="@style/Widget.VibeChess.Button.Surface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_xxs"
+                    android:layout_weight="1"
+                    android:minHeight="@dimen/touch_target_min"
+                    android:minWidth="@dimen/touch_target_min"
+                    android:paddingStart="@dimen/spacing_xs"
+                    android:paddingEnd="@dimen/spacing_xs"
+                    android:text="@string/game_pause"
+                    android:textSize="@dimen/text_caption" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ProgressBar
+                    android:id="@+id/pb_ai_thinking"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/spacing_xxs"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/primary"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_turn_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_turn_white"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/text_section_label"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Winning Probability Bar (White % vs Black %, smoothly animated, no raw points) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_probability_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_sm"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_xs">
 
-                    <TextView
-                        android:id="@+id/tv_prob_white"
-                        android:layout_width="@dimen/zero_dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:textColor="@color/primary"
-                        android:textSize="@dimen/text_caption"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tv_prob_black"
-                        android:layout_width="@dimen/zero_dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:textColor="@color/text"
-                        android:textSize="@dimen/text_caption"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tv_prob_white"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="start"
+                            android:textColor="@color/primary"
+                            android:textSize="@dimen/text_caption"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_prob_black"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="@color/text"
+                            android:textSize="@dimen/text_caption"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <com.reduan.vibechess.ui.game.WinProbabilityBarView
+                        android:id="@+id/win_probability_bar"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/prob_bar_height"
+                        android:layout_marginTop="@dimen/spacing_xxs"
+                        android:contentDescription="@string/game_win_probability_placeholder" />
 
                 </LinearLayout>
 
-                <com.reduan.vibechess.ui.game.WinProbabilityBarView
-                    android:id="@+id/win_probability_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/prob_bar_height"
-                    android:layout_marginTop="@dimen/spacing_xxs" />
+            </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_rotate_black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:checked="true"
+                android:minHeight="@dimen/touch_target_min"
+                android:minWidth="@dimen/touch_target_min"
+                android:text="@string/game_rotate_black_pieces"
+                android:textColor="@color/text"
+                android:textSize="@dimen/text_caption"
+                app:thumbTint="@color/primary" />
 
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_rotate_black"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:checked="true"
-            android:text="@string/game_rotate_black_pieces"
-            android:textColor="@color/text"
-            android:textSize="@dimen/text_caption"
-            app:thumbTint="@color/primary" />
-
-    </LinearLayout>
+    </ScrollView>
 
     <!-- Centered Square Chess BoardView -->
     <com.reduan.vibechess.ui.game.BoardView
         android:id="@+id/board_view"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
-        android:layout_marginStart="@dimen/spacing_sm"
-        android:layout_marginEnd="@dimen/spacing_sm"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/game_board_content_desc"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toStartOf="@+id/right_side_panel"
-        app:layout_constraintStart_toEndOf="@+id/left_side_panel"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_right_panel_start"
+        app:layout_constraintStart_toEndOf="@+id/guideline_left_panel_end"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Opaque Pause Overlay hiding the board while paused -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/pause_overlay"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
@@ -186,7 +212,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_lg">
+            android:padding="@dimen/spacing_md">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -211,7 +237,8 @@
                 style="@style/Widget.VibeChess.Button.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_lg"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:minHeight="@dimen/touch_target_min"
                 android:minWidth="@dimen/button_min_width"
                 android:text="@string/game_resume" />
 
@@ -220,47 +247,47 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Right Side Panel: Black & White Player Clocks and Captured Trays -->
-    <LinearLayout
+    <ScrollView
         android:id="@+id/right_side_panel"
-        android:layout_width="@dimen/zero_dp"
-        android:layout_height="@dimen/zero_dp"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/board_view"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="@dimen/side_panel_max_width">
+        app:layout_constraintStart_toEndOf="@+id/guideline_right_panel_start"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Black Player Card (Top) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_player_black"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="@dimen/corner_radius_md"
-            app:cardElevation="@dimen/zero_dp"
-            app:strokeColor="@color/stroke_subtle"
-            app:strokeWidth="@dimen/stroke_width">
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_xs">
 
-            <LinearLayout
+            <!-- Black Player Card (Top) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_player_black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_sm">
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_md"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_xs">
 
                     <TextView
                         android:id="@+id/tv_label_black"
-                        android:layout_width="@dimen/zero_dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="@string/game_player_black"
                         android:textColor="@color/text"
                         android:textSize="@dimen/text_section_label"
@@ -269,8 +296,9 @@
                     <!-- Black's Large Clock (rotated 180° when Rotate Opponent is ON) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_clock_black"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xxs"
                         app:cardBackgroundColor="@color/background"
                         app:cardCornerRadius="@dimen/corner_radius_sm"
                         app:cardElevation="@dimen/zero_dp"
@@ -279,10 +307,10 @@
 
                         <TextView
                             android:id="@+id/tv_clock_black"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:minWidth="@dimen/clock_min_width"
+                            android:maxLines="1"
                             android:paddingStart="@dimen/spacing_xs"
                             android:paddingTop="@dimen/spacing_xxs"
                             android:paddingEnd="@dimen/spacing_xs"
@@ -294,47 +322,41 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
+                    <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
+                        android:id="@+id/tray_captured_black"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/captured_tray_min_height"
+                        android:layout_marginTop="@dimen/spacing_xxs"
+                        android:contentDescription="@string/game_captured_tray_placeholder" />
+
                 </LinearLayout>
 
-                <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
-                    android:id="@+id/tray_captured_black"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/captured_tray_min_height"
-                    android:layout_marginTop="@dimen/spacing_xxs" />
+            </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- White Player Card (Bottom) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_player_white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="@dimen/corner_radius_md"
-            app:cardElevation="@dimen/zero_dp"
-            app:strokeColor="@color/stroke_subtle"
-            app:strokeWidth="@dimen/stroke_width">
-
-            <LinearLayout
+            <!-- White Player Card (Bottom) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_player_white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_sm">
+                android:layout_marginTop="@dimen/spacing_xs"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_md"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_xs">
 
                     <TextView
                         android:id="@+id/tv_label_white"
-                        android:layout_width="@dimen/zero_dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
                         android:text="@string/game_player_white"
                         android:textColor="@color/text"
                         android:textSize="@dimen/text_section_label"
@@ -343,8 +365,9 @@
                     <!-- White's Large Clock -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_clock_white"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xxs"
                         app:cardBackgroundColor="@color/primary"
                         app:cardCornerRadius="@dimen/corner_radius_sm"
                         app:cardElevation="@dimen/zero_dp"
@@ -353,10 +376,10 @@
 
                         <TextView
                             android:id="@+id/tv_clock_white"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:minWidth="@dimen/clock_min_width"
+                            android:maxLines="1"
                             android:paddingStart="@dimen/spacing_xs"
                             android:paddingTop="@dimen/spacing_xxs"
                             android:paddingEnd="@dimen/spacing_xs"
@@ -368,18 +391,19 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
+                    <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
+                        android:id="@+id/tray_captured_white"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/captured_tray_min_height"
+                        android:layout_marginTop="@dimen/spacing_xxs"
+                        android:contentDescription="@string/game_captured_tray_placeholder" />
+
                 </LinearLayout>
 
-                <com.reduan.vibechess.ui.game.CapturedPiecesTrayView
-                    android:id="@+id/tray_captured_white"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/captured_tray_min_height"
-                    android:layout_marginTop="@dimen/spacing_xxs" />
+            </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
+        </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

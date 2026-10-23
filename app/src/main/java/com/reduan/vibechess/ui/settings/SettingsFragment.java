@@ -49,7 +49,16 @@ public class SettingsFragment extends Fragment {
         SwitchMaterial switchVibration = view.findViewById(R.id.switch_vibration);
         SwitchMaterial switchRotateOpponent = view.findViewById(R.id.switch_rotate_opponent);
 
-        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        btnBack.setOnClickListener(v -> {
+            if (!isAdded()) {
+                return;
+            }
+            var navController = Navigation.findNavController(v);
+            if (navController.getCurrentDestination() != null
+                    && navController.getCurrentDestination().getId() == R.id.settingsFragment) {
+                navController.navigateUp();
+            }
+        });
 
         viewModel.getLanguageTag().observe(getViewLifecycleOwner(), tag -> {
             isUpdatingUi = true;

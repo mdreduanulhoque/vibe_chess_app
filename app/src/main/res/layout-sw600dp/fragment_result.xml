@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_xl">
+
+        <LinearLayout
+            android:id="@+id/result_content"
+            android:layout_width="@dimen/zero_dp"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/result_land_max_width">
+
+            <!-- Left Column: Winner Headline & Reason -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_xl"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_result_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/result_title"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_section_label" />
+
+                <TextView
+                    android:id="@+id/tv_result_winner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:gravity="center"
+                    android:text="@string/result_white_wins"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/text_result_headline"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_result_reason"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:gravity="center"
+                    android:text="@string/result_reason_win"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_home_subtitle" />
+
+            </LinearLayout>
+
+            <!-- Right Column: Final Points Card + Action Buttons -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Final Points Card (shown ONLY on the Result screen per PROJECT_SPEC.md) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="@dimen/corner_radius_lg"
+                    app:cardElevation="@dimen/zero_dp"
+                    app:strokeColor="@color/stroke_subtle"
+                    app:strokeWidth="@dimen/stroke_width">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_lg">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/result_final_points_label"
+                            android:textColor="@color/text"
+                            android:textSize="@dimen/text_section_label"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_md"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <!-- White Final Points -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_score_white"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/spacing_xs"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="@color/background"
+                                app:cardCornerRadius="@dimen/corner_radius_md"
+                                app:cardElevation="@dimen/zero_dp"
+                                app:strokeColor="@color/stroke_subtle"
+                                app:strokeWidth="@dimen/stroke_width">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_md">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/game_player_white"
+                                        android:textColor="@color/text"
+                                        android:textSize="@dimen/text_section_label"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tv_result_white_points"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_xxs"
+                                        android:textColor="@color/primary"
+                                        android:textSize="@dimen/text_result_score"
+                                        android:textStyle="bold" />
+
+                                </LinearLayout>
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Black Final Points -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/card_score_black"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_xs"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="@color/background"
+                                app:cardCornerRadius="@dimen/corner_radius_md"
+                                app:cardElevation="@dimen/zero_dp"
+                                app:strokeColor="@color/stroke_subtle"
+                                app:strokeWidth="@dimen/stroke_width">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="@dimen/spacing_md">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/game_player_black"
+                                        android:textColor="@color/text"
+                                        android:textSize="@dimen/text_section_label"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tv_result_black_points"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_xxs"
+                                        android:textColor="@color/primary"
+                                        android:textSize="@dimen/text_result_score"
+                                        android:textStyle="bold" />
+
+                                </LinearLayout>
+
+                            </com.google.android.material.card.MaterialCardView>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Action Buttons: Rematch & Home -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_result_rematch"
+                    style="@style/Widget.VibeChess.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:text="@string/result_rematch" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_result_home"
+                    style="@style/Widget.VibeChess.Button.Surface"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="@string/result_home" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

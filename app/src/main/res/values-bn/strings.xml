@@ -9,7 +9,6 @@
     <string name="home_multiplayer">দুই খেলোয়াড় (অফলাইন)</string>
     <string name="home_how_to_play">খেলার নিয়ম</string>
     <string name="home_settings">সেটিংস</string>
-    <string name="placeholder_coming_soon">শীঘ্রই আসছে</string>
 
     <!-- Settings Screen Labels -->
     <string name="settings_title">সেটিংস</string>
@@ -154,4 +153,13 @@
     <string name="piece_rook">নৌকা (রুক)</string>
     <string name="piece_queen">মন্ত্রী (কুইন)</string>
     <string name="piece_king">রাজা (কিং)</string>
+
+    <!-- Accessibility Content Descriptions -->
+    <string name="a11y_square_empty">%1$s, ফাঁকা ঘর</string>
+    <string name="a11y_square_empty_legal_move">%1$s, ফাঁকা ঘর, বৈধ চাল</string>
+    <string name="a11y_square_piece">%1$s, %2$s %3$s</string>
+    <string name="a11y_square_piece_selected">%1$s, %2$s %3$s, নির্বাচিত</string>
+    <string name="a11y_square_piece_legal_capture">%1$s, %2$s %3$s, ক্যাপচারযোগ্য</string>
+    <string name="a11y_captured_tray_count">ক্যাপচার করা ঘুঁটি: %1$s</string>
+    <string name="a11y_win_probability">জয়ের সম্ভাবনা: সাদা %1$d%%, কালো %2$d%%</string>
 </resources>

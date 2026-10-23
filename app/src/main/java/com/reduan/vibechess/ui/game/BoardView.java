@@ -7,18 +7,26 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
 import com.reduan.vibechess.R;
 import com.reduan.vibechess.core.Board;
@@ -45,12 +53,17 @@ import java.util.Set;
  *       rule illustrations on the "How to Play" screen (with move dots, capture rings,
  *       directional arrows, and gentle pulsing highlights).</li>
  * </ul>
+ * Zero heap allocations occur inside {@link #onDraw(Canvas)}, and each visible square exposes
+ * a virtual accessibility node with localized piece/square content descriptions and minimum 48dp
+ * accessibility touch bounds.
  */
 public class BoardView extends View {
 
     private static final long MOVE_ANIMATION_DURATION_MS = 175L;
     private static final long DEMO_PULSE_DURATION_MS = 1100L;
+    private static final long MOVE_TAP_DEBOUNCE_MS = 90L;
     private static final int DEFAULT_BOARD_DP = 320;
+    private static final int MIN_TOUCH_TARGET_DP = 48;
 
     public interface OnMoveSelectedListener {
         void onMoveSelected(@NonNull Move move);
@@ -76,8 +89,14 @@ public class BoardView extends View {
     private final Paint demoArrowHeadPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path arrowHeadPath = new Path();
 
+    // Pre-allocated rectangles reused during onDraw (zero allocations per frame)
     private final RectF squareRect = new RectF();
+    private final RectF animFromRect = new RectF();
+    private final RectF animToRect = new RectF();
     private final Map<Color, Map<PieceType, Drawable>> drawableCache = new EnumMap<>(Color.class);
+
+    private float minArrowStrokeWidthPx = 4f;
+    private int minTouchTargetPx = 48;
 
     @Nullable
     private GameState gameState;
@@ -89,6 +108,8 @@ public class BoardView extends View {
     private List<Move> allLegalMoves = List.of();
     @NonNull
     private List<Move> legalMovesFromSelected = List.of();
+    @NonNull
+    private final List<Move> uniqueLegalMovesFromSelected = new ArrayList<>(28);
 
     private boolean rotateBlackPieces = true;
     private boolean boardPerspectiveFlipped = false;
@@ -101,7 +122,13 @@ public class BoardView extends View {
     @Nullable
     private OnPromotionRequestedListener onPromotionRequestedListener;
 
-    // Move animation state (175ms)
+    // Multi-touch & rapid-tap protection state
+    private int activePointerId = MotionEvent.INVALID_POINTER_ID;
+    @Nullable
+    private Square touchDownSquare = null;
+    private long lastMoveDispatchedRealtimeMs = 0L;
+
+    // Move animation state (175ms @ 60fps)
     @Nullable
     private Move animatingMove;
     private float animationProgress = 1f;
@@ -114,6 +141,12 @@ public class BoardView extends View {
     private float demoPulseFactor = 0.85f;
     @Nullable
     private ValueAnimator demoPulseAnimator;
+
+    // Accessibility virtual node support
+    private int hoveredVirtualViewId = AccessibilityNodeProviderCompat.HOST_VIEW_ID;
+    private final int[] screenLocationTemp = new int[2];
+    private final BoardAccessibilityNodeProvider accessibilityNodeProvider =
+            new BoardAccessibilityNodeProvider();
 
     public BoardView(@NonNull Context context) {
         super(context);
@@ -131,6 +164,9 @@ public class BoardView extends View {
     }
 
     private void init(@NonNull Context context) {
+        minArrowStrokeWidthPx = dpToPx(2);
+        minTouchTargetPx = dpToPx(MIN_TOUCH_TARGET_DP);
+
         lightSquarePaint.setStyle(Paint.Style.FILL);
         lightSquarePaint.setColor(ContextCompat.getColor(context, R.color.board_light));
 
@@ -167,6 +203,14 @@ public class BoardView extends View {
         demoArrowHeadPaint.setColor(primaryColor);
 
         preloadDrawables(context);
+
+        ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegateCompat() {
+            @Nullable
+            @Override
+            public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
+                return accessibilityNodeProvider;
+            }
+        });
     }
 
     private void preloadDrawables(@NonNull Context context) {
@@ -191,6 +235,9 @@ public class BoardView extends View {
         if (config != null) {
             this.gameState = null;
             this.selectedSquare = null;
+            this.allLegalMoves = List.of();
+            this.legalMovesFromSelected = List.of();
+            this.uniqueLegalMovesFromSelected.clear();
             this.interactionEnabled = false;
             this.rotateBlackPieces = false;
             this.boardPerspectiveFlipped = false;
@@ -209,13 +256,20 @@ public class BoardView extends View {
 
     /**
      * Updates the board with a new {@link GameState} from {@code :game-core}.
-     * Automatically triggers a light 175ms slide animation when a new move has been played.
+     * Automatically triggers a light 175ms slide animation when a new move has been played,
+     * and avoids redundant move generation or animation cancellation on clock-only ticks.
      */
     public void setGameState(@Nullable GameState newState) {
         this.demoConfig = null;
         cancelDemoPulseAnimation();
 
-        Move previousLastMove = this.gameState != null ? this.gameState.getLastMove() : null;
+        GameState previousState = this.gameState;
+        if (previousState != null && newState != null && isSameBoardPosition(previousState, newState)) {
+            this.gameState = newState;
+            return;
+        }
+
+        Move previousLastMove = previousState != null ? previousState.getLastMove() : null;
         Move nextLastMove = newState != null ? newState.getLastMove() : null;
         boolean shouldAnimate = hasRenderedInitialState
                 && nextLastMove != null
@@ -233,6 +287,8 @@ public class BoardView extends View {
             if (legalMovesFromSelected.isEmpty() && !hasFriendlyPieceAt(selectedSquare)) {
                 selectedSquare = null;
             }
+        } else {
+            uniqueLegalMovesFromSelected.clear();
         }
 
         if (shouldAnimate) {
@@ -241,6 +297,15 @@ public class BoardView extends View {
             cancelMoveAnimation();
             invalidate();
         }
+    }
+
+    private static boolean isSameBoardPosition(@NonNull GameState a, @NonNull GameState b) {
+        return a.getSideToMove() == b.getSideToMove()
+                && a.getStatus() == b.getStatus()
+                && Objects.equals(a.getLastMove(), b.getLastMove())
+                && Objects.equals(a.getEnPassantTarget(), b.getEnPassantTarget())
+                && Objects.equals(a.getCastlingRights(), b.getCastlingRights())
+                && Objects.equals(a.getBoard(), b.getBoard());
     }
 
     @Nullable
@@ -325,6 +390,75 @@ public class BoardView extends View {
 
     public void setOnPromotionRequestedListener(@Nullable OnPromotionRequestedListener listener) {
         this.onPromotionRequestedListener = listener;
+    }
+
+    /**
+     * Returns a localized content description for the given {@link Piece} (e.g. "White Knight").
+     */
+    @NonNull
+    public String getPieceContentDescription(@NonNull Piece piece) {
+        Context context = getContext();
+        String colorName = context.getString(PieceDrawableMapper.getColorLabelRes(piece.color()));
+        String typeName = context.getString(PieceDrawableMapper.getPieceTypeLabelRes(piece.type()));
+        return colorName + " " + typeName;
+    }
+
+    /**
+     * Returns a localized accessibility content description for the given {@link Square}
+     * including its algebraic coordinate, any piece on it, and selection/legal-move state.
+     */
+    @NonNull
+    public String getSquareContentDescription(@NonNull Square square) {
+        Context context = getContext();
+        String coord = square.toAlgebraic();
+        Board board = getActiveBoard();
+        Piece piece = board != null ? board.getPieceAt(square) : null;
+
+        boolean isSelected = square.equals(selectedSquare);
+        boolean isLegalMoveDest = false;
+        boolean isLegalCaptureDest = false;
+
+        if (demoConfig != null) {
+            isLegalMoveDest = demoConfig.getMoveDotSquares().contains(square);
+            isLegalCaptureDest = demoConfig.getCaptureRingSquares().contains(square);
+        } else {
+            for (int i = 0, n = uniqueLegalMovesFromSelected.size(); i < n; i++) {
+                Move move = uniqueLegalMovesFromSelected.get(i);
+                if (move.to().equals(square)) {
+                    if (move.isCapture()) {
+                        isLegalCaptureDest = true;
+                    } else {
+                        isLegalMoveDest = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (piece == null) {
+            if (isLegalMoveDest || isLegalCaptureDest) {
+                return context.getString(R.string.a11y_square_empty_legal_move, coord);
+            }
+            return context.getString(R.string.a11y_square_empty, coord);
+        }
+
+        String colorName = context.getString(PieceDrawableMapper.getColorLabelRes(piece.color()));
+        String typeName = context.getString(PieceDrawableMapper.getPieceTypeLabelRes(piece.type()));
+        if (isSelected) {
+            return context.getString(R.string.a11y_square_piece_selected, coord, colorName, typeName);
+        }
+        if (isLegalCaptureDest || isLegalMoveDest) {
+            return context.getString(R.string.a11y_square_piece_legal_capture, coord, colorName, typeName);
+        }
+        return context.getString(R.string.a11y_square_piece, coord, colorName, typeName);
+    }
+
+    @Nullable
+    private Board getActiveBoard() {
+        if (demoConfig != null) {
+            return demoConfig.getBoard();
+        }
+        return gameState != null ? gameState.getBoard() : null;
     }
 
     @Override
@@ -415,10 +549,12 @@ public class BoardView extends View {
             }
         }
 
-        // 2. Draw gentle pulsing highlights on key squares
+        // 2. Draw gentle pulsing highlights on key squares (indexed loop: zero iterator allocation)
         int pulseAlpha = Math.max(25, Math.min(255, Math.round(baseHighlightAlpha * demoPulseFactor)));
         demoPulsePaint.setAlpha(pulseAlpha);
-        for (Square sq : config.getPulsingSquares()) {
+        List<Square> pulsingSquares = config.getPulsingSquares();
+        for (int i = 0, n = pulsingSquares.size(); i < n; i++) {
+            Square sq = pulsingSquares.get(i);
             if (isSquareVisibleInDemo(config, sq)) {
                 getDemoSquareBounds(config, sq.rank(), sq.file(), squareSize, squareRect);
                 canvas.drawRect(squareRect, demoPulsePaint);
@@ -445,13 +581,18 @@ public class BoardView extends View {
         float ringRadius = (squareSize * 0.43f) - (ringStrokeWidth / 2f);
         captureRingPaint.setStrokeWidth(ringStrokeWidth);
 
-        for (Square dotSq : config.getMoveDotSquares()) {
+        List<Square> dotSquares = config.getMoveDotSquares();
+        for (int i = 0, n = dotSquares.size(); i < n; i++) {
+            Square dotSq = dotSquares.get(i);
             if (isSquareVisibleInDemo(config, dotSq)) {
                 getDemoSquareBounds(config, dotSq.rank(), dotSq.file(), squareSize, squareRect);
                 canvas.drawCircle(squareRect.centerX(), squareRect.centerY(), dotRadius, moveDotPaint);
             }
         }
-        for (Square ringSq : config.getCaptureRingSquares()) {
+
+        List<Square> ringSquares = config.getCaptureRingSquares();
+        for (int i = 0, n = ringSquares.size(); i < n; i++) {
+            Square ringSq = ringSquares.get(i);
             if (isSquareVisibleInDemo(config, ringSq)) {
                 getDemoSquareBounds(config, ringSq.rank(), ringSq.file(), squareSize, squareRect);
                 canvas.drawCircle(squareRect.centerX(), squareRect.centerY(), ringRadius, captureRingPaint);
@@ -459,7 +600,9 @@ public class BoardView extends View {
         }
 
         // 5. Draw directional arrows
-        for (BoardDemoConfig.Arrow arrow : config.getArrows()) {
+        List<BoardDemoConfig.Arrow> arrows = config.getArrows();
+        for (int i = 0, n = arrows.size(); i < n; i++) {
+            BoardDemoConfig.Arrow arrow = arrows.get(i);
             if (isSquareVisibleInDemo(config, arrow.from()) && isSquareVisibleInDemo(config, arrow.to())) {
                 drawDemoArrow(canvas, config, arrow.from(), arrow.to(), squareSize);
             }
@@ -504,7 +647,7 @@ public class BoardView extends View {
         float baseX = tipX - ux * headLength;
         float baseY = tipY - uy * headLength;
 
-        demoArrowLinePaint.setStrokeWidth(Math.max(dpToPx(2), squareSize * 0.09f));
+        demoArrowLinePaint.setStrokeWidth(Math.max(minArrowStrokeWidthPx, squareSize * 0.09f));
         canvas.drawLine(lineStartX, lineStartY, baseX, baseY, demoArrowLinePaint);
 
         float perpX = -uy;
@@ -608,13 +751,11 @@ public class BoardView extends View {
                                    @NonNull Square from,
                                    @NonNull Square to,
                                    float squareSize) {
-        RectF fromBounds = new RectF();
-        RectF toBounds = new RectF();
-        getSquareBounds(from.rank(), from.file(), squareSize, fromBounds);
-        getSquareBounds(to.rank(), to.file(), squareSize, toBounds);
+        getSquareBounds(from.rank(), from.file(), squareSize, animFromRect);
+        getSquareBounds(to.rank(), to.file(), squareSize, animToRect);
 
-        float left = fromBounds.left + (toBounds.left - fromBounds.left) * animationProgress;
-        float top = fromBounds.top + (toBounds.top - fromBounds.top) * animationProgress;
+        float left = animFromRect.left + (animToRect.left - animFromRect.left) * animationProgress;
+        float top = animFromRect.top + (animToRect.top - animFromRect.top) * animationProgress;
         squareRect.set(left, top, left + squareSize, top + squareSize);
         drawPieceInRect(canvas, piece, squareRect);
     }
@@ -650,7 +791,7 @@ public class BoardView extends View {
     }
 
     private void drawLegalMoveIndicators(@NonNull Canvas canvas, float squareSize) {
-        if (selectedSquare == null || legalMovesFromSelected.isEmpty()) {
+        if (selectedSquare == null || uniqueLegalMovesFromSelected.isEmpty()) {
             return;
         }
 
@@ -659,12 +800,9 @@ public class BoardView extends View {
         float ringRadius = (squareSize * 0.43f) - (ringStrokeWidth / 2f);
         captureRingPaint.setStrokeWidth(ringStrokeWidth);
 
-        Set<Square> drawnDestinations = new HashSet<>();
-        for (Move move : legalMovesFromSelected) {
+        for (int i = 0, n = uniqueLegalMovesFromSelected.size(); i < n; i++) {
+            Move move = uniqueLegalMovesFromSelected.get(i);
             Square dest = move.to();
-            if (!drawnDestinations.add(dest)) {
-                continue;
-            }
             getSquareBounds(dest.rank(), dest.file(), squareSize, squareRect);
             float cx = squareRect.centerX();
             float cy = squareRect.centerY();
@@ -678,24 +816,95 @@ public class BoardView extends View {
     }
 
     @Override
+    protected boolean dispatchHoverEvent(@NonNull MotionEvent event) {
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_HOVER_MOVE || action == MotionEvent.ACTION_HOVER_ENTER) {
+            int virtualId = getVirtualViewIdAt(event.getX(), event.getY());
+            updateHoveredVirtualView(virtualId);
+            if (virtualId != AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+                return true;
+            }
+        } else if (action == MotionEvent.ACTION_HOVER_EXIT) {
+            updateHoveredVirtualView(AccessibilityNodeProviderCompat.HOST_VIEW_ID);
+        }
+        return super.dispatchHoverEvent(event);
+    }
+
+    private void updateHoveredVirtualView(int virtualViewId) {
+        if (hoveredVirtualViewId == virtualViewId) {
+            return;
+        }
+        int previousId = hoveredVirtualViewId;
+        hoveredVirtualViewId = virtualViewId;
+        if (virtualViewId != AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+            sendEventForVirtualView(virtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_ENTER);
+        }
+        if (previousId != AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+            sendEventForVirtualView(previousId, AccessibilityEvent.TYPE_VIEW_HOVER_EXIT);
+        }
+    }
+
+    private void sendEventForVirtualView(int virtualViewId, int eventType) {
+        if (!isAttachedToWindow() || getParent() == null) {
+            return;
+        }
+        Square sq = virtualIdToSquare(virtualViewId);
+        if (sq == null) {
+            return;
+        }
+        AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
+        event.setPackageName(getContext().getPackageName());
+        event.setClassName(View.class.getName());
+        event.setContentDescription(getSquareContentDescription(sq));
+        event.setSource(this, virtualViewId);
+        getParent().requestSendAccessibilityEvent(this, event);
+    }
+
+    @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (demoConfig != null || !interactionEnabled || gameState == null || gameState.isGameOver()) {
+            activePointerId = MotionEvent.INVALID_POINTER_ID;
+            touchDownSquare = null;
             return false;
         }
 
         int action = event.getActionMasked();
-        if (action == MotionEvent.ACTION_DOWN) {
-            return true;
-        }
-        if (action == MotionEvent.ACTION_UP) {
-            Square tapped = resolveSquareAt(event.getX(), event.getY());
-            if (tapped != null) {
-                handleSquareTap(tapped);
-                performClick();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN -> {
+                activePointerId = event.getPointerId(0);
+                touchDownSquare = resolveSquareAt(event.getX(), event.getY());
+                return true;
             }
-            return true;
+            case MotionEvent.ACTION_POINTER_DOWN -> {
+                // Ignore secondary multi-touch pointers and cancel current tap gesture
+                activePointerId = MotionEvent.INVALID_POINTER_ID;
+                touchDownSquare = null;
+                return true;
+            }
+            case MotionEvent.ACTION_UP -> {
+                int pointerIndex = event.findPointerIndex(activePointerId);
+                Square downSq = touchDownSquare;
+                activePointerId = MotionEvent.INVALID_POINTER_ID;
+                touchDownSquare = null;
+                if (pointerIndex < 0) {
+                    return true;
+                }
+                Square upSq = resolveSquareAt(event.getX(pointerIndex), event.getY(pointerIndex));
+                if (upSq != null && upSq.equals(downSq)) {
+                    handleSquareTap(upSq);
+                    performClick();
+                }
+                return true;
+            }
+            case MotionEvent.ACTION_CANCEL -> {
+                activePointerId = MotionEvent.INVALID_POINTER_ID;
+                touchDownSquare = null;
+                return true;
+            }
+            default -> {
+                return super.onTouchEvent(event);
+            }
         }
-        return super.onTouchEvent(event);
     }
 
     @Override
@@ -704,14 +913,20 @@ public class BoardView extends View {
     }
 
     private void handleSquareTap(@NonNull Square tappedSquare) {
-        if (gameState == null) {
+        if (gameState == null || !interactionEnabled || gameState.isGameOver()) {
+            return;
+        }
+
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastMoveDispatchedRealtimeMs < MOVE_TAP_DEBOUNCE_MS) {
             return;
         }
 
         // 1. Check if tappedSquare is a legal destination for the currently selected square
         if (selectedSquare != null && !legalMovesFromSelected.isEmpty()) {
             List<Move> matchingMoves = new ArrayList<>();
-            for (Move move : legalMovesFromSelected) {
+            for (int i = 0, n = legalMovesFromSelected.size(); i < n; i++) {
+                Move move = legalMovesFromSelected.get(i);
                 if (move.to().equals(tappedSquare)) {
                     matchingMoves.add(move);
                 }
@@ -722,9 +937,11 @@ public class BoardView extends View {
                     requestPromotionChoice(gameState.getSideToMove(), matchingMoves);
                 } else {
                     Move chosenMove = matchingMoves.get(0);
+                    lastMoveDispatchedRealtimeMs = now;
                     setSelectedSquare(null);
                     dispatchMoveSelected(chosenMove);
                 }
+                sendEventForVirtualView(squareToVirtualId(tappedSquare), AccessibilityEvent.TYPE_VIEW_CLICKED);
                 return;
             }
         }
@@ -737,6 +954,7 @@ public class BoardView extends View {
         } else {
             setSelectedSquare(null);
         }
+        sendEventForVirtualView(squareToVirtualId(tappedSquare), AccessibilityEvent.TYPE_VIEW_CLICKED);
     }
 
     private void requestPromotionChoice(@NonNull Color sideToMove,
@@ -751,6 +969,7 @@ public class BoardView extends View {
                     new PromotionDialogHelper.PromotionSelectionCallback() {
                         @Override
                         public void onPromotionMoveSelected(@NonNull Move chosenMove) {
+                            lastMoveDispatchedRealtimeMs = SystemClock.elapsedRealtime();
                             setSelectedSquare(null);
                             dispatchMoveSelected(chosenMove);
                         }
@@ -774,14 +993,20 @@ public class BoardView extends View {
     }
 
     private void updateLegalMovesFromSelected(@Nullable Square origin) {
+        uniqueLegalMovesFromSelected.clear();
         if (origin == null || allLegalMoves.isEmpty()) {
             this.legalMovesFromSelected = List.of();
             return;
         }
         List<Move> filtered = new ArrayList<>();
-        for (Move move : allLegalMoves) {
+        Set<Square> seenDestinations = new HashSet<>();
+        for (int i = 0, n = allLegalMoves.size(); i < n; i++) {
+            Move move = allLegalMoves.get(i);
             if (move.from().equals(origin)) {
                 filtered.add(move);
+                if (seenDestinations.add(move.to())) {
+                    uniqueLegalMovesFromSelected.add(move);
+                }
             }
         }
         this.legalMovesFromSelected = filtered;
@@ -801,6 +1026,18 @@ public class BoardView extends View {
         if (boardPx <= 0 || x < 0 || y < 0 || x >= boardPx || y >= boardPx) {
             return null;
         }
+        if (demoConfig != null) {
+            int gridSize = demoConfig.getGridSize();
+            float squareSize = boardPx / (float) gridSize;
+            int col = (int) (x / squareSize);
+            int row = (int) (y / squareSize);
+            if (col < 0 || col >= gridSize || row < 0 || row >= gridSize) {
+                return null;
+            }
+            int file = demoConfig.getStartFile() + col;
+            int rank = demoConfig.getStartRank() + (gridSize - 1 - row);
+            return Square.isValid(rank, file) ? Square.of(rank, file) : null;
+        }
         float squareSize = boardPx / (float) Square.BOARD_SIZE;
         int col = (int) (x / squareSize);
         int row = (int) (y / squareSize);
@@ -810,6 +1047,25 @@ public class BoardView extends View {
         int file = boardPerspectiveFlipped ? (Square.BOARD_SIZE - 1 - col) : col;
         int rank = boardPerspectiveFlipped ? row : (Square.BOARD_SIZE - 1 - row);
         return Square.of(rank, file);
+    }
+
+    private static int squareToVirtualId(@NonNull Square square) {
+        return square.rank() * Square.BOARD_SIZE + square.file();
+    }
+
+    @Nullable
+    private static Square virtualIdToSquare(int virtualViewId) {
+        if (virtualViewId < 0 || virtualViewId >= Square.BOARD_SIZE * Square.BOARD_SIZE) {
+            return null;
+        }
+        int rank = virtualViewId / Square.BOARD_SIZE;
+        int file = virtualViewId % Square.BOARD_SIZE;
+        return Square.of(rank, file);
+    }
+
+    private int getVirtualViewIdAt(float x, float y) {
+        Square sq = resolveSquareAt(x, y);
+        return sq != null ? squareToVirtualId(sq) : AccessibilityNodeProviderCompat.HOST_VIEW_ID;
     }
 
     private void startMoveAnimation(@NonNull Move move) {
@@ -845,6 +1101,8 @@ public class BoardView extends View {
 
     private void cancelMoveAnimation() {
         if (moveAnimator != null) {
+            moveAnimator.removeAllUpdateListeners();
+            moveAnimator.removeAllListeners();
             moveAnimator.cancel();
             moveAnimator = null;
         }
@@ -871,6 +1129,8 @@ public class BoardView extends View {
 
     private void cancelDemoPulseAnimation() {
         if (demoPulseAnimator != null) {
+            demoPulseAnimator.removeAllUpdateListeners();
+            demoPulseAnimator.removeAllListeners();
             demoPulseAnimator.cancel();
             demoPulseAnimator = null;
         }
@@ -896,5 +1156,122 @@ public class BoardView extends View {
                 dp,
                 getResources().getDisplayMetrics()
         ));
+    }
+
+    /**
+     * Exposes each visible square on the board as a virtual accessibility node for screen readers
+     * (TalkBack / Switch Access) with localized square and piece descriptions and >=48dp touch targets.
+     */
+    private final class BoardAccessibilityNodeProvider extends AccessibilityNodeProviderCompat {
+
+        @Nullable
+        @Override
+        public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(int virtualViewId) {
+            if (virtualViewId == HOST_VIEW_ID) {
+                AccessibilityNodeInfoCompat root = AccessibilityNodeInfoCompat.obtain(BoardView.this);
+                ViewCompat.onInitializeAccessibilityNodeInfo(BoardView.this, root);
+                if (demoConfig != null) {
+                    int gridSize = demoConfig.getGridSize();
+                    int startRank = demoConfig.getStartRank();
+                    int startFile = demoConfig.getStartFile();
+                    for (int r = startRank + gridSize - 1; r >= startRank; r--) {
+                        for (int f = startFile; f < startFile + gridSize; f++) {
+                            root.addChild(BoardView.this, r * Square.BOARD_SIZE + f);
+                        }
+                    }
+                } else {
+                    for (int row = 0; row < Square.BOARD_SIZE; row++) {
+                        int rank = boardPerspectiveFlipped ? row : (Square.BOARD_SIZE - 1 - row);
+                        for (int col = 0; col < Square.BOARD_SIZE; col++) {
+                            int file = boardPerspectiveFlipped ? (Square.BOARD_SIZE - 1 - col) : col;
+                            root.addChild(BoardView.this, rank * Square.BOARD_SIZE + file);
+                        }
+                    }
+                }
+                return root;
+            }
+
+            Square sq = virtualIdToSquare(virtualViewId);
+            if (sq == null) {
+                return null;
+            }
+            if (demoConfig != null && !isSquareVisibleInDemo(demoConfig, sq)) {
+                return null;
+            }
+
+            AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+            node.setParent(BoardView.this);
+            node.setSource(BoardView.this, virtualViewId);
+            node.setPackageName(getContext().getPackageName());
+            node.setClassName(View.class.getName());
+            node.setContentDescription(getSquareContentDescription(sq));
+            node.setEnabled(isEnabled());
+            node.setVisibleToUser(isShown());
+
+            boolean clickable = demoConfig == null
+                    && interactionEnabled
+                    && gameState != null
+                    && !gameState.isGameOver();
+            node.setClickable(clickable);
+            node.setFocusable(true);
+            node.setSelected(sq.equals(selectedSquare));
+            if (clickable) {
+                node.addAction(AccessibilityNodeInfoCompat.ACTION_CLICK);
+            }
+
+            int boardPx = Math.min(getWidth(), getHeight());
+            Rect parentBounds = new Rect();
+            if (boardPx > 0) {
+                RectF localRect = new RectF();
+                if (demoConfig != null) {
+                    float sqSize = boardPx / (float) demoConfig.getGridSize();
+                    getDemoSquareBounds(demoConfig, sq.rank(), sq.file(), sqSize, localRect);
+                } else {
+                    float sqSize = boardPx / (float) Square.BOARD_SIZE;
+                    getSquareBounds(sq.rank(), sq.file(), sqSize, localRect);
+                }
+                parentBounds.set(
+                        Math.round(localRect.left),
+                        Math.round(localRect.top),
+                        Math.round(localRect.right),
+                        Math.round(localRect.bottom)
+                );
+                // Ensure virtual accessibility node bounds meet minimum 48dp touch target
+                if (parentBounds.width() < minTouchTargetPx) {
+                    int expandX = (minTouchTargetPx - parentBounds.width() + 1) / 2;
+                    parentBounds.inset(-expandX, 0);
+                }
+                if (parentBounds.height() < minTouchTargetPx) {
+                    int expandY = (minTouchTargetPx - parentBounds.height() + 1) / 2;
+                    parentBounds.inset(0, -expandY);
+                }
+            } else {
+                parentBounds.set(0, 0, minTouchTargetPx, minTouchTargetPx);
+            }
+
+            node.setBoundsInParent(parentBounds);
+            getLocationOnScreen(screenLocationTemp);
+            Rect screenBounds = new Rect(parentBounds);
+            screenBounds.offset(screenLocationTemp[0], screenLocationTemp[1]);
+            node.setBoundsInScreen(screenBounds);
+
+            return node;
+        }
+
+        @Override
+        public boolean performAction(int virtualViewId, int action, @Nullable Bundle arguments) {
+            if (virtualViewId == HOST_VIEW_ID) {
+                return BoardView.this.performAccessibilityAction(action, arguments);
+            }
+            if (action == AccessibilityNodeInfoCompat.ACTION_CLICK) {
+                Square sq = virtualIdToSquare(virtualViewId);
+                if (sq != null && demoConfig == null && interactionEnabled) {
+                    handleSquareTap(sq);
+                    performClick();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

@@ -108,7 +108,16 @@ public class GameSetupFragment extends Fragment {
         SwitchMaterial switchRotate = view.findViewById(R.id.switch_setup_rotate_opponent);
         MaterialButton btnStart = view.findViewById(R.id.btn_start_game);
 
-        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        btnBack.setOnClickListener(v -> {
+            if (!isAdded()) {
+                return;
+            }
+            var navController = Navigation.findNavController(v);
+            if (navController.getCurrentDestination() != null
+                    && navController.getCurrentDestination().getId() == R.id.gameSetupFragment) {
+                navController.navigateUp();
+            }
+        });
 
         if (singlePlayerMode) {
             tvSubtitle.setText(R.string.setup_subtitle_single_player);
@@ -174,6 +183,14 @@ public class GameSetupFragment extends Fragment {
         );
 
         btnStart.setOnClickListener(v -> {
+            if (!isAdded()) {
+                return;
+            }
+            var navController = Navigation.findNavController(v);
+            if (navController.getCurrentDestination() == null
+                    || navController.getCurrentDestination().getAction(R.id.action_setup_to_game) == null) {
+                return;
+            }
             Bundle gameArgs;
             if (singlePlayerMode) {
                 boolean isRandom = COLOR_CHOICE_RANDOM.equals(selectedColorChoice);
@@ -187,7 +204,7 @@ public class GameSetupFragment extends Fragment {
             } else {
                 gameArgs = GameFragment.createArgs(selectedClockMillis);
             }
-            Navigation.findNavController(v).navigate(R.id.action_setup_to_game, gameArgs);
+            navController.navigate(R.id.action_setup_to_game, gameArgs);
         });
     }
 
