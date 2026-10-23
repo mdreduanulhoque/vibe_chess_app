@@ -21,4 +21,22 @@
     <string name="settings_dark_mode_label">Dark Mode</string>
     <string name="settings_dark_mode_desc">Switch between light and dark theme</string>
     <string name="settings_back">Back</string>
+
+    <!-- Game Screen -->
+    <string name="game_player_white">White</string>
+    <string name="game_player_black">Black</string>
+    <string name="game_turn_white">White to move</string>
+    <string name="game_turn_black">Black to move</string>
+    <string name="game_clock_placeholder">--:--</string>
+    <string name="game_win_probability_placeholder" formatted="false">Win Probability (50% - 50%)</string>
+    <string name="game_captured_tray_placeholder">Captured pieces</string>
+    <string name="game_rotate_black_pieces">Rotate Black 180°</string>
+    <string name="game_board_content_desc">Chess board</string>
+
+    <!-- Promotion Dialog -->
+    <string name="promotion_dialog_title">Promote Pawn</string>
+    <string name="piece_queen">Queen</string>
+    <string name="piece_rook">Rook</string>
+    <string name="piece_bishop">Bishop</string>
+    <string name="piece_knight">Knight</string>
 </resources>

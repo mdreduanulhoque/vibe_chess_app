@@ -16,6 +16,7 @@ public class SettingsPreferences {
     private static final String PREFS_NAME = "vibe_chess_settings";
     private static final String KEY_DARK_MODE = "dark_mode_enabled";
     private static final String KEY_LANGUAGE_TAG = "language_tag";
+    private static final String KEY_ROTATE_OPPONENT_PIECES = "rotate_opponent_pieces";
 
     public static final String LANG_SYSTEM = "";
     public static final String LANG_ENGLISH = "en";
@@ -71,6 +72,21 @@ public class SettingsPreferences {
     public void setLanguageTag(@NonNull String languageTag) {
         prefs.edit().putString(KEY_LANGUAGE_TAG, languageTag).apply();
         applyLanguage(languageTag);
+    }
+
+    /**
+     * Returns whether opponent (Black) pieces should be rotated 180 degrees in pass-and-play.
+     * Default is true per PROJECT_SPEC.md.
+     */
+    public boolean isRotateOpponentPiecesEnabled() {
+        return prefs.getBoolean(KEY_ROTATE_OPPONENT_PIECES, true);
+    }
+
+    /**
+     * Persists whether opponent (Black) pieces should be rotated 180 degrees.
+     */
+    public void setRotateOpponentPiecesEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_ROTATE_OPPONENT_PIECES, enabled).apply();
     }
 
     /**

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_lg">
+
+    <TextView
+        android:id="@+id/tv_promotion_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/promotion_dialog_title"
+        android:textColor="@color/text"
+        android:textSize="@dimen/text_section_label"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- Queen -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_promote_queen"
+            android:layout_width="@dimen/zero_dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="@dimen/corner_radius_md"
+            app:cardElevation="@dimen/zero_dp"
+            app:strokeColor="@color/primary"
+            app:strokeWidth="@dimen/stroke_width">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_xs">
+
+                <ImageView
+                    android:id="@+id/iv_promote_queen"
+                    android:layout_width="@dimen/promotion_icon_size"
+                    android:layout_height="@dimen/promotion_icon_size"
+                    android:contentDescription="@string/piece_queen" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/piece_queen"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Rook -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_promote_rook"
+            android:layout_width="@dimen/zero_dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="@dimen/corner_radius_md"
+            app:cardElevation="@dimen/zero_dp"
+            app:strokeColor="@color/stroke_subtle"
+            app:strokeWidth="@dimen/stroke_width">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_xs">
+
+                <ImageView
+                    android:id="@+id/iv_promote_rook"
+                    android:layout_width="@dimen/promotion_icon_size"
+                    android:layout_height="@dimen/promotion_icon_size"
+                    android:contentDescription="@string/piece_rook" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/piece_rook"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bishop -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_promote_bishop"
+            android:layout_width="@dimen/zero_dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="@dimen/corner_radius_md"
+            app:cardElevation="@dimen/zero_dp"
+            app:strokeColor="@color/stroke_subtle"
+            app:strokeWidth="@dimen/stroke_width">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_xs">
+
+                <ImageView
+                    android:id="@+id/iv_promote_bishop"
+                    android:layout_width="@dimen/promotion_icon_size"
+                    android:layout_height="@dimen/promotion_icon_size"
+                    android:contentDescription="@string/piece_bishop" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/piece_bishop"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Knight -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_promote_knight"
+            android:layout_width="@dimen/zero_dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="@dimen/corner_radius_md"
+            app:cardElevation="@dimen/zero_dp"
+            app:strokeColor="@color/stroke_subtle"
+            app:strokeWidth="@dimen/stroke_width">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_xs">
+
+                <ImageView
+                    android:id="@+id/iv_promote_knight"
+                    android:layout_width="@dimen/promotion_icon_size"
+                    android:layout_height="@dimen/promotion_icon_size"
+                    android:contentDescription="@string/piece_knight" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/piece_knight"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_caption" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</LinearLayout>

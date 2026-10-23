@@ -15,7 +15,10 @@
 
     <!-- Piece tokens -->
     <color name="piece_white_fill">#FFFFFF</color>
+    <color name="piece_white_stroke">#1F1F1F</color>
     <color name="piece_black_fill">#2B2B2B</color>
+    <color name="piece_black_stroke">#141414</color>
+    <color name="piece_black_detail">#5A5A5A</color>
 
     <!-- Splash & UI supporting tokens -->
     <color name="splash_background">#F26A1B</color>

@@ -18,4 +18,22 @@
     <string name="settings_dark_mode_label">ডার্ক মোড</string>
     <string name="settings_dark_mode_desc">লাইট ও ডার্ক থিম পরিবর্তন করুন</string>
     <string name="settings_back">ফিরে যান</string>
+
+    <!-- Game Screen -->
+    <string name="game_player_white">সাদা</string>
+    <string name="game_player_black">কালো</string>
+    <string name="game_turn_white">সাদার চাল</string>
+    <string name="game_turn_black">কালোর চাল</string>
+    <string name="game_clock_placeholder">--:--</string>
+    <string name="game_win_probability_placeholder" formatted="false">জয়ের সম্ভাবনা (৫০% - ৫০%)</string>
+    <string name="game_captured_tray_placeholder">ক্যাপচার করা ঘুঁটি</string>
+    <string name="game_rotate_black_pieces">কালো ঘুঁটি ১৮০° ঘোরান</string>
+    <string name="game_board_content_desc">দাবার বোর্ড</string>
+
+    <!-- Promotion Dialog -->
+    <string name="promotion_dialog_title">বোড়ে প্রমোশন</string>
+    <string name="piece_queen">মন্ত্রী (কুইন)</string>
+    <string name="piece_rook">নৌকা (রুক)</string>
+    <string name="piece_bishop">হাতি (বিশপ)</string>
+    <string name="piece_knight">ঘোড়া (নাইট)</string>
 </resources>

@@ -23,9 +23,18 @@
         android:label="@string/app_name"
         tools:layout="@layout/fragment_home">
         <action
+            android:id="@+id/action_home_to_game"
+            app:destination="@id/gameFragment" />
+        <action
             android:id="@+id/action_home_to_settings"
             app:destination="@id/settingsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="com.reduan.vibechess.ui.game.GameFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_game" />
 
     <fragment
         android:id="@+id/settingsFragment"

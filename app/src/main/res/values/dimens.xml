@@ -6,14 +6,22 @@
     <dimen name="spacing_lg">24dp</dimen>
     <dimen name="spacing_xl">32dp</dimen>
     <dimen name="spacing_xxl">48dp</dimen>
+    <dimen name="spacing_xxs">4dp</dimen>
 
+    <dimen name="corner_radius_sm">8dp</dimen>
     <dimen name="corner_radius_md">14dp</dimen>
     <dimen name="corner_radius_lg">20dp</dimen>
     <dimen name="button_height">56dp</dimen>
+    <dimen name="button_height_compact">40dp</dimen>
     <dimen name="button_min_width">220dp</dimen>
     <dimen name="content_max_width">420dp</dimen>
     <dimen name="stroke_width">1dp</dimen>
     <dimen name="zero_dp">0dp</dimen>
+
+    <dimen name="prob_bar_height">8dp</dimen>
+    <dimen name="captured_tray_min_height">24dp</dimen>
+    <dimen name="promotion_icon_size">40dp</dimen>
+    <dimen name="side_panel_max_width">240dp</dimen>
 
     <dimen name="text_splash_logo">42sp</dimen>
     <dimen name="text_splash_tagline">16sp</dimen>
@@ -22,4 +30,6 @@
     <dimen name="text_screen_title">24sp</dimen>
     <dimen name="text_section_label">16sp</dimen>
     <dimen name="text_button">16sp</dimen>
+    <dimen name="text_caption">13sp</dimen>
+    <dimen name="text_clock">18sp</dimen>
 </resources>

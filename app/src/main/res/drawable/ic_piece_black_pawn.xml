@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Base platform -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.0"
+        android:strokeLineJoin="round"
+        android:pathData="M11,39 L37,39 C37,36 34.5,34 31.5,34 L16.5,34 C13.5,34 11,36 11,39 Z" />
+
+    <!-- Tapered body -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.0"
+        android:strokeLineJoin="round"
+        android:pathData="M16.5,34 C18,28.5 19.5,24.5 19.5,21 L28.5,21 C28.5,24.5 30,28.5 31.5,34 Z" />
+
+    <!-- Collar -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_detail"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:pathData="M17.5,21 L30.5,21 C31.3,21 32,20.3 32,19.5 C32,18.7 31.3,18 30.5,18 L17.5,18 C16.7,18 16,18.7 16,19.5 C16,20.3 16.7,21 17.5,21 Z" />
+
+    <!-- Round head -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.0"
+        android:pathData="M24,8.5 A5.5,5.5 0 1,1 23.99,8.5 Z" />
+</vector>

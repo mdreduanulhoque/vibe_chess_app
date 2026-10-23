@@ -41,7 +41,8 @@ public class HomeFragment extends Fragment {
                 Snackbar.make(v, R.string.placeholder_coming_soon, Snackbar.LENGTH_SHORT).show();
 
         btnSinglePlayer.setOnClickListener(placeholderListener);
-        btnMultiplayer.setOnClickListener(placeholderListener);
+        btnMultiplayer.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_home_to_game));
         btnHowToPlay.setOnClickListener(placeholderListener);
 
         btnSettings.setOnClickListener(v ->

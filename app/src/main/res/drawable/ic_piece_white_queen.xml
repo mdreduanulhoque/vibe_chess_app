@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Base platform -->
+    <path
+        android:fillColor="@color/piece_white_fill"
+        android:strokeColor="@color/piece_white_stroke"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:pathData="M9.5,39 L38.5,39 C38.5,36 36,34 33,34 L15,34 C12,34 9.5,36 9.5,39 Z" />
+
+    <!-- Coronet crown body -->
+    <path
+        android:fillColor="@color/piece_white_fill"
+        android:strokeColor="@color/piece_white_stroke"
+        android:strokeWidth="2.2"
+        android:strokeLineJoin="round"
+        android:pathData="M14.5,34 L10.5,16 L18,24 L24,13.5 L30,24 L37.5,16 L33.5,34 Z" />
+
+    <!-- Crown pearls -->
+    <path
+        android:fillColor="@color/piece_white_fill"
+        android:strokeColor="@color/piece_white_stroke"
+        android:strokeWidth="2.0"
+        android:pathData="M10,12.5 A2,2 0 1,1 9.99,12.5 Z M24,9.5 A2.2,2.2 0 1,1 23.99,9.5 Z M38,12.5 A2,2 0 1,1 37.99,12.5 Z" />
+</vector>

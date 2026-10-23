@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Top cross -->
+    <path
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M24,6 L24,13.5 M20.5,9.5 L27.5,9.5" />
+
+    <!-- Base platform -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.0"
+        android:strokeLineJoin="round"
+        android:pathData="M9.5,39 L38.5,39 C38.5,36 36,34 33,34 L15,34 C12,34 9.5,36 9.5,39 Z" />
+
+    <!-- Royal crown body -->
+    <path
+        android:fillColor="@color/piece_black_fill"
+        android:strokeColor="@color/piece_black_stroke"
+        android:strokeWidth="2.0"
+        android:strokeLineJoin="round"
+        android:pathData="M15,34 L12,21 C12,16.5 17,15 21,19 C22,16 26,16 27,19 C31,15 36,16.5 36,21 L33,34 Z" />
+
+    <!-- Crown jewel band & base detail -->
+    <path
+        android:strokeColor="@color/piece_white_fill"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M17.5,29.5 L30.5,29.5" />
+    <path
+        android:strokeColor="@color/piece_black_detail"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M15.5,34 L32.5,34" />
+</vector>
