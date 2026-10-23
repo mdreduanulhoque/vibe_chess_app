@@ -4,8 +4,30 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Minimalist chess crown / king silhouette in onPrimary -->
+
+    <!-- Minimalist White Chess King Silhouette (centered in 66x66 adaptive icon safe zone) -->
+
+    <!-- Royal Cross -->
     <path
         android:fillColor="@color/splash_text"
-        android:pathData="M34,72h40v6H34zM36,66l-4,-22l12,8l10,-16l10,16l12,-8l-4,22z" />
+        android:pathData="M52,26h4v12h-4z" />
+    <path
+        android:fillColor="@color/splash_text"
+        android:pathData="M48,29.5h12v4h-12z" />
+
+    <!-- Crown Body Silhouette -->
+    <path
+        android:fillColor="@color/splash_text"
+        android:pathData="M39,65 L34,44 C34,38.5 40.5,36.5 46,42 C48,37.5 52,36 54,36 C56,36 60,37.5 62,42 C67.5,36.5 74,38.5 74,44 L69,65 Z" />
+
+    <!-- Pedestal Collar -->
+    <path
+        android:fillColor="@color/splash_text"
+        android:pathData="M37,67.5h34v3.5h-34z" />
+
+    <!-- Base Platform -->
+    <path
+        android:fillColor="@color/splash_text"
+        android:pathData="M33,79 C33,75 36,73.5 40,73.5 L68,73.5 C72,73.5 75,75 75,79 Z" />
+
 </vector>

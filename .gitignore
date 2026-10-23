@@ -36,3 +36,10 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Keystore & release signing secrets (NEVER commit)
+keystore.properties
+!keystore.properties.example
+*.jks
+*.keystore
+keystore/
