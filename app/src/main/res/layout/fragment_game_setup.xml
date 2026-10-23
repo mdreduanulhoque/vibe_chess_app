@@ -52,6 +52,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tv_setup_subtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/setup_subtitle_multiplayer"
@@ -61,11 +62,142 @@
 
             </LinearLayout>
 
-            <!-- Time Selection Card (1 min or 2 min per side) -->
+            <!-- Single Player Color Selection Card (White / Black / Random) -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_setup_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_lg"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_lg"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_color_label"
+                        android:textColor="@color/text"
+                        android:textSize="@dimen/text_section_label"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_color_choice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_color_white"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="@string/setup_color_white"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_color_black"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setup_color_black"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_color_random"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setup_color_random"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Single Player Difficulty Selection Card (Easy / Medium / Hard) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_setup_difficulty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/corner_radius_lg"
+                app:cardElevation="@dimen/zero_dp"
+                app:strokeColor="@color/stroke_subtle"
+                app:strokeWidth="@dimen/stroke_width">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_difficulty_label"
+                        android:textColor="@color/text"
+                        android:textSize="@dimen/text_section_label"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_difficulty_choice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_difficulty_easy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setup_difficulty_easy"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_difficulty_medium"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="@string/setup_difficulty_medium"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rb_difficulty_hard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/setup_difficulty_hard"
+                            android:textColor="@color/text"
+                            app:buttonTint="@color/primary" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Time Selection Card (1 min or 2 min per side) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_setup_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
                 app:cardBackgroundColor="@color/surface"
                 app:cardCornerRadius="@dimen/corner_radius_lg"
                 app:cardElevation="@dimen/zero_dp"
@@ -116,8 +248,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Rotate Opponent Pieces Setting Card -->
+            <!-- Rotate Opponent Pieces Setting Card (Multiplayer Pass-and-Play only) -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_setup_rotate_opponent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_md"

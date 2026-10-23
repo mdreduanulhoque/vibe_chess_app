@@ -21,7 +21,16 @@
 
     <!-- Game Setup Screen -->
     <string name="setup_title">খেলা সেটআপ</string>
+    <string name="setup_subtitle_single_player">কম্পিউটারের বিরুদ্ধে একক খেলা</string>
     <string name="setup_subtitle_multiplayer">পাস-অ্যান্ড-প্লে (২ জন খেলোয়াড়)</string>
+    <string name="setup_color_label">আপনার ঘুঁটির রঙ</string>
+    <string name="setup_color_white">সাদা</string>
+    <string name="setup_color_black">কালো</string>
+    <string name="setup_color_random">র‍্যান্ডম</string>
+    <string name="setup_difficulty_label">কঠিনতার স্তর</string>
+    <string name="setup_difficulty_easy">সহজ</string>
+    <string name="setup_difficulty_medium">মাঝারি</string>
+    <string name="setup_difficulty_hard">কঠিন</string>
     <string name="setup_time_label">প্রতি পক্ষের সময়</string>
     <string name="setup_time_1_min">১ মিনিট</string>
     <string name="setup_time_2_min">২ মিনিট</string>
@@ -31,8 +40,13 @@
     <!-- Game Screen -->
     <string name="game_player_white">সাদা</string>
     <string name="game_player_black">কালো</string>
+    <string name="game_player_white_you">সাদা (আপনি)</string>
+    <string name="game_player_white_ai">সাদা (এআই)</string>
+    <string name="game_player_black_you">কালো (আপনি)</string>
+    <string name="game_player_black_ai">কালো (এআই)</string>
     <string name="game_turn_white">সাদার চাল</string>
     <string name="game_turn_black">কালোর চাল</string>
+    <string name="game_ai_thinking">এআই ভাবছে…</string>
     <string name="game_clock_placeholder">--:--</string>
     <string name="game_win_probability_placeholder" formatted="false">জয়ের সম্ভাবনা (৫০% - ৫০%)</string>
     <string name="game_prob_white_format">সাদা %1$d%%</string>

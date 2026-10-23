@@ -29,20 +29,38 @@
             android:text="@string/settings_back"
             android:textSize="@dimen/text_caption" />
 
-        <TextView
-            android:id="@+id/tv_turn_indicator"
+        <LinearLayout
             android:layout_width="@dimen/zero_dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_xs"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:layout_weight="1"
-            android:ellipsize="end"
             android:gravity="center"
-            android:maxLines="1"
-            android:text="@string/game_turn_white"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/text_caption"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/pb_ai_thinking"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_xxs"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/primary"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_turn_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="@string/game_turn_white"
+                android:textColor="@color/primary"
+                android:textSize="@dimen/text_caption"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_game_pause"
@@ -100,6 +118,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_label_black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/game_player_black"
@@ -311,6 +330,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/tv_label_white"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/game_player_white"

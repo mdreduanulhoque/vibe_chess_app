@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.reduan.vibechess.R;
+import com.reduan.vibechess.core.AiDifficulty;
 import com.reduan.vibechess.core.ChessClock;
 import com.reduan.vibechess.core.Color;
 import com.reduan.vibechess.core.GameState;
@@ -30,12 +32,17 @@ import java.util.List;
 
 /**
  * Game screen hosting the custom {@link BoardView}, live chess clocks,
- * animated winning probability bar, captured-pieces trays, and pause overlay.
+ * animated winning probability bar, captured-pieces trays, subtle AI thinking indicator,
+ * and pause overlay. Supports both Single Player vs Computer and Multiplayer Pass-and-Play.
  * Portrait uses a stacked layout; landscape centers the board with side panels.
  */
 public class GameFragment extends Fragment {
 
     public static final String ARG_INITIAL_CLOCK_MILLIS = "arg_initial_clock_millis";
+    public static final String ARG_SINGLE_PLAYER = "arg_single_player";
+    public static final String ARG_HUMAN_COLOR = "arg_human_color";
+    public static final String ARG_AI_DIFFICULTY = "arg_ai_difficulty";
+    public static final String ARG_RANDOM_COLOR_CHOICE = "arg_random_color_choice";
 
     private GameViewModel viewModel;
     private boolean isUpdatingSwitch = false;
@@ -47,6 +54,21 @@ public class GameFragment extends Fragment {
     public static Bundle createArgs(long initialClockMillis) {
         Bundle args = new Bundle();
         args.putLong(ARG_INITIAL_CLOCK_MILLIS, initialClockMillis);
+        args.putBoolean(ARG_SINGLE_PLAYER, false);
+        return args;
+    }
+
+    @NonNull
+    public static Bundle createSinglePlayerArgs(long initialClockMillis,
+                                                @NonNull Color humanColor,
+                                                @NonNull AiDifficulty difficulty,
+                                                boolean randomColorChoice) {
+        Bundle args = new Bundle();
+        args.putLong(ARG_INITIAL_CLOCK_MILLIS, initialClockMillis);
+        args.putBoolean(ARG_SINGLE_PLAYER, true);
+        args.putString(ARG_HUMAN_COLOR, humanColor.name());
+        args.putString(ARG_AI_DIFFICULTY, difficulty.name());
+        args.putBoolean(ARG_RANDOM_COLOR_CHOICE, randomColorChoice);
         return args;
     }
 
@@ -63,41 +85,110 @@ public class GameFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         long initialClockMillis = ChessClock.ONE_MINUTE_MILLIS;
+        boolean singlePlayer = false;
+        Color humanColor = Color.WHITE;
+        AiDifficulty difficulty = AiDifficulty.MEDIUM;
+        boolean randomColorChoice = false;
+
         Bundle args = getArguments();
         if (args != null) {
             initialClockMillis = args.getLong(
                     ARG_INITIAL_CLOCK_MILLIS,
                     ChessClock.ONE_MINUTE_MILLIS
             );
+            singlePlayer = args.getBoolean(ARG_SINGLE_PLAYER, false);
+            randomColorChoice = args.getBoolean(ARG_RANDOM_COLOR_CHOICE, false);
+
+            String colorName = args.getString(ARG_HUMAN_COLOR, Color.WHITE.name());
+            try {
+                humanColor = Color.valueOf(colorName);
+            } catch (IllegalArgumentException ignored) {
+                humanColor = Color.WHITE;
+            }
+
+            String diffName = args.getString(ARG_AI_DIFFICULTY, AiDifficulty.MEDIUM.name());
+            try {
+                difficulty = AiDifficulty.valueOf(diffName);
+            } catch (IllegalArgumentException ignored) {
+                difficulty = AiDifficulty.MEDIUM;
+            }
         }
 
         viewModel = new ViewModelProvider(this).get(GameViewModel.class);
-        viewModel.initIfNeeded(initialClockMillis);
+        viewModel.initIfNeeded(
+                initialClockMillis,
+                singlePlayer,
+                humanColor,
+                difficulty,
+                randomColorChoice
+        );
         hasRenderedProbabilityOnce = false;
 
         MaterialButton btnBack = view.findViewById(R.id.btn_game_back);
         MaterialButton btnPause = view.findViewById(R.id.btn_game_pause);
         MaterialButton btnResume = view.findViewById(R.id.btn_game_resume);
+        ProgressBar pbAiThinking = view.findViewById(R.id.pb_ai_thinking);
         TextView tvTurnIndicator = view.findViewById(R.id.tv_turn_indicator);
         SwitchMaterial switchRotateBlack = view.findViewById(R.id.switch_rotate_black);
         BoardView boardView = view.findViewById(R.id.board_view);
         View pauseOverlay = view.findViewById(R.id.pause_overlay);
 
-        MaterialCardView cardBlack = view.findViewById(R.id.card_player_black);
-        MaterialCardView cardWhite = view.findViewById(R.id.card_player_white);
-        MaterialCardView cardClockBlack = view.findViewById(R.id.card_clock_black);
-        MaterialCardView cardClockWhite = view.findViewById(R.id.card_clock_white);
-        TextView tvClockBlack = view.findViewById(R.id.tv_clock_black);
-        TextView tvClockWhite = view.findViewById(R.id.tv_clock_white);
+        // Layout top and bottom player cards
+        MaterialCardView cardTop = view.findViewById(R.id.card_player_black);
+        MaterialCardView cardBottom = view.findViewById(R.id.card_player_white);
+        TextView tvLabelTop = view.findViewById(R.id.tv_label_black);
+        TextView tvLabelBottom = view.findViewById(R.id.tv_label_white);
+        MaterialCardView cardClockTop = view.findViewById(R.id.card_clock_black);
+        MaterialCardView cardClockBottom = view.findViewById(R.id.card_clock_white);
+        TextView tvClockTop = view.findViewById(R.id.tv_clock_black);
+        TextView tvClockBottom = view.findViewById(R.id.tv_clock_white);
+        CapturedPiecesTrayView trayTop = view.findViewById(R.id.tray_captured_black);
+        CapturedPiecesTrayView trayBottom = view.findViewById(R.id.tray_captured_white);
 
-        CapturedPiecesTrayView trayCapturedBlack = view.findViewById(R.id.tray_captured_black);
-        CapturedPiecesTrayView trayCapturedWhite = view.findViewById(R.id.tray_captured_white);
+        // When playing Single Player as Black, flip the board so Black is at the bottom
+        // and bind the bottom player panel to Black (You) and the top panel to White (AI).
+        boolean flipPerspectiveForHumanBlack =
+                viewModel.isSinglePlayer() && viewModel.getHumanColor() == Color.BLACK;
+        boardView.setBoardPerspectiveFlipped(flipPerspectiveForHumanBlack);
+
+        final MaterialCardView cardWhite = flipPerspectiveForHumanBlack ? cardTop : cardBottom;
+        final MaterialCardView cardBlack = flipPerspectiveForHumanBlack ? cardBottom : cardTop;
+        final MaterialCardView cardClockWhite = flipPerspectiveForHumanBlack ? cardClockTop : cardClockBottom;
+        final MaterialCardView cardClockBlack = flipPerspectiveForHumanBlack ? cardClockBottom : cardClockTop;
+        final TextView tvClockWhite = flipPerspectiveForHumanBlack ? tvClockTop : tvClockBottom;
+        final TextView tvClockBlack = flipPerspectiveForHumanBlack ? tvClockBottom : tvClockTop;
+        final CapturedPiecesTrayView trayCapturedWhite = flipPerspectiveForHumanBlack ? trayTop : trayBottom;
+        final CapturedPiecesTrayView trayCapturedBlack = flipPerspectiveForHumanBlack ? trayBottom : trayTop;
+
+        if (viewModel.isSinglePlayer()) {
+            switchRotateBlack.setVisibility(View.GONE);
+            boardView.setFlipped(false);
+            cardClockTop.setRotation(0f);
+            cardClockBottom.setRotation(0f);
+            trayTop.setRotateIcons180(false);
+            trayBottom.setRotateIcons180(false);
+
+            if (flipPerspectiveForHumanBlack) {
+                tvLabelTop.setText(R.string.game_player_white_ai);
+                tvLabelBottom.setText(R.string.game_player_black_you);
+            } else {
+                tvLabelTop.setText(R.string.game_player_black_ai);
+                tvLabelBottom.setText(R.string.game_player_white_you);
+            }
+        } else {
+            switchRotateBlack.setVisibility(View.VISIBLE);
+            tvLabelTop.setText(R.string.game_player_black);
+            tvLabelBottom.setText(R.string.game_player_white);
+        }
 
         TextView tvProbWhite = view.findViewById(R.id.tv_prob_white);
         TextView tvProbBlack = view.findViewById(R.id.tv_prob_black);
         WinProbabilityBarView winProbabilityBar = view.findViewById(R.id.win_probability_bar);
 
-        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        btnBack.setOnClickListener(v -> {
+            viewModel.onExitGame();
+            Navigation.findNavController(v).navigateUp();
+        });
         btnPause.setOnClickListener(v -> viewModel.pauseGame());
         btnResume.setOnClickListener(v -> viewModel.resumeGame());
 
@@ -108,14 +199,14 @@ public class GameFragment extends Fragment {
         );
 
         switchRotateBlack.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isUpdatingSwitch) {
+            if (isUpdatingSwitch || viewModel.isSinglePlayer()) {
                 return;
             }
             viewModel.setRotateBlackPieces(isChecked);
         });
 
         viewModel.getRotateBlackPieces().observe(getViewLifecycleOwner(), rotate -> {
-            if (rotate == null) {
+            if (rotate == null || viewModel.isSinglePlayer()) {
                 return;
             }
             boardView.setFlipped(rotate);
@@ -129,12 +220,22 @@ public class GameFragment extends Fragment {
             isUpdatingSwitch = false;
         });
 
+        viewModel.getAiThinking().observe(getViewLifecycleOwner(), thinking -> {
+            boolean showThinking = Boolean.TRUE.equals(thinking) && !viewModel.isPaused();
+            pbAiThinking.setVisibility(showThinking ? View.VISIBLE : View.GONE);
+            GameState current = viewModel.getGameState().getValue();
+            if (current != null) {
+                updateTurnIndicatorText(current, showThinking, tvTurnIndicator);
+            }
+        });
+
         viewModel.getPaused().observe(getViewLifecycleOwner(), paused -> {
             boolean isPaused = Boolean.TRUE.equals(paused);
             pauseOverlay.setVisibility(isPaused ? View.VISIBLE : View.GONE);
             btnPause.setEnabled(!isPaused);
             boardView.setInteractionEnabled(viewModel.isCurrentTurnHumanInteractive());
             if (isPaused) {
+                pbAiThinking.setVisibility(View.GONE);
                 dismissPromotionDialog();
             } else {
                 List<Move> pendingPromotions = viewModel.getPendingPromotionMoves().getValue();
@@ -152,8 +253,11 @@ public class GameFragment extends Fragment {
             boardView.setGameState(state);
             boardView.setInteractionEnabled(viewModel.isCurrentTurnHumanInteractive());
 
+            boolean isAiThinking = Boolean.TRUE.equals(viewModel.getAiThinking().getValue())
+                    && !viewModel.isPaused();
             updateTurnAndClocksUi(
                     state,
+                    isAiThinking,
                     tvTurnIndicator,
                     cardWhite,
                     cardBlack,
@@ -171,7 +275,11 @@ public class GameFragment extends Fragment {
                         state.getResult(),
                         state.points(Color.WHITE),
                         state.points(Color.BLACK),
-                        state.getClock().getInitialMillis()
+                        state.getClock().getInitialMillis(),
+                        viewModel.isSinglePlayer(),
+                        viewModel.getHumanColor(),
+                        viewModel.getAiDifficulty(),
+                        viewModel.isRandomColorChoice()
                 );
                 Navigation.findNavController(view).navigate(R.id.action_game_to_result, resultArgs);
             }
@@ -212,7 +320,19 @@ public class GameFragment extends Fragment {
         }
     }
 
+    private void updateTurnIndicatorText(@NonNull GameState state,
+                                         boolean isAiThinking,
+                                         @NonNull TextView tvTurnIndicator) {
+        if (isAiThinking && !state.isGameOver()) {
+            tvTurnIndicator.setText(R.string.game_ai_thinking);
+        } else {
+            boolean isWhiteTurn = state.getSideToMove() == Color.WHITE;
+            tvTurnIndicator.setText(isWhiteTurn ? R.string.game_turn_white : R.string.game_turn_black);
+        }
+    }
+
     private void updateTurnAndClocksUi(@NonNull GameState state,
+                                       boolean isAiThinking,
                                        @NonNull TextView tvTurnIndicator,
                                        @NonNull MaterialCardView cardWhite,
                                        @NonNull MaterialCardView cardBlack,
@@ -220,9 +340,9 @@ public class GameFragment extends Fragment {
                                        @NonNull MaterialCardView cardClockBlack,
                                        @NonNull TextView tvClockWhite,
                                        @NonNull TextView tvClockBlack) {
-        boolean isWhiteTurn = state.getSideToMove() == Color.WHITE;
-        tvTurnIndicator.setText(isWhiteTurn ? R.string.game_turn_white : R.string.game_turn_black);
+        updateTurnIndicatorText(state, isAiThinking, tvTurnIndicator);
 
+        boolean isWhiteTurn = state.getSideToMove() == Color.WHITE;
         ChessClock clock = state.getClock();
         tvClockWhite.setText(ClockFormatter.formatMillis(clock.getWhiteRemainingMillis()));
         tvClockBlack.setText(ClockFormatter.formatMillis(clock.getBlackRemainingMillis()));

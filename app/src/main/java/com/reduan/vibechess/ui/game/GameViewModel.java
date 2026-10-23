@@ -11,6 +11,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.reduan.vibechess.core.AiDifficulty;
+import com.reduan.vibechess.core.AiMoveSource;
 import com.reduan.vibechess.core.ChessClock;
 import com.reduan.vibechess.core.Color;
 import com.reduan.vibechess.core.GameState;
@@ -26,23 +28,31 @@ import java.util.Objects;
 /**
  * ViewModel holding the active {@link GameState} from {@code :game-core}, driving the chess clock
  * via {@link SystemClock#elapsedRealtime()} deltas (~10x/sec on the main thread), managing pause/resume,
- * and coordinating turns between White and Black {@link MoveSource} instances.
- * Survives configuration changes (rotation) without clock drift.
+ * and coordinating turns between White and Black {@link MoveSource} instances
+ * ({@link LocalHumanMoveSource} and {@link AiMoveSource}).
+ * Survives configuration changes (rotation) without clock drift or cancelling AI search.
  */
 public class GameViewModel extends AndroidViewModel {
 
     private static final long CLOCK_UPDATE_INTERVAL_MS = 100L;
 
     private final SettingsPreferences settingsPreferences;
-    private final MoveSource whiteMoveSource;
-    private final MoveSource blackMoveSource;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private MoveSource whiteMoveSource = new LocalHumanMoveSource();
+    private MoveSource blackMoveSource = new LocalHumanMoveSource();
+
+    private boolean singlePlayer = false;
+    private Color humanColor = Color.WHITE;
+    private AiDifficulty aiDifficulty = AiDifficulty.MEDIUM;
+    private boolean randomColorChoice = false;
 
     private final MutableLiveData<GameState> gameStateLiveData = new MutableLiveData<>();
     private final MutableLiveData<Square> selectedSquareLiveData = new MutableLiveData<>(null);
     private final MutableLiveData<List<Move>> pendingPromotionMovesLiveData = new MutableLiveData<>(null);
     private final MutableLiveData<Boolean> rotateBlackPiecesLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> pausedLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> aiThinkingLiveData = new MutableLiveData<>(false);
     private final MutableLiveData<Color> skippedTurnNoticeLiveData = new MutableLiveData<>(null);
 
     private boolean initialized = false;
@@ -67,28 +77,79 @@ public class GameViewModel extends AndroidViewModel {
     public GameViewModel(@NonNull Application application) {
         super(application);
         this.settingsPreferences = new SettingsPreferences(application);
-        this.whiteMoveSource = new LocalHumanMoveSource();
-        this.blackMoveSource = new LocalHumanMoveSource();
-
         this.rotateBlackPiecesLiveData.setValue(
                 settingsPreferences.isRotateOpponentPiecesEnabled()
         );
     }
 
     /**
-     * Initializes the game with the given clock duration per side if not already initialized.
-     * Safe to call from {@code Fragment.onViewCreated} across screen rotations.
+     * Initializes a Multiplayer (pass-and-play) game with the given clock duration per side.
      */
     public void initIfNeeded(long initialClockMillis) {
+        initIfNeeded(initialClockMillis, false, Color.WHITE, AiDifficulty.MEDIUM, false);
+    }
+
+    /**
+     * Initializes a Single Player or Multiplayer game if not already initialized.
+     * Safe to call from {@code Fragment.onViewCreated} across screen rotations.
+     */
+    public void initIfNeeded(long initialClockMillis,
+                             boolean singlePlayer,
+                             @NonNull Color humanColor,
+                             @NonNull AiDifficulty difficulty,
+                             boolean randomColorChoice) {
         if (initialized) {
             return;
         }
         initialized = true;
+        this.singlePlayer = singlePlayer;
+        this.humanColor = Objects.requireNonNull(humanColor, "humanColor must not be null");
+        this.aiDifficulty = Objects.requireNonNull(difficulty, "difficulty must not be null");
+        this.randomColorChoice = randomColorChoice;
+
+        shutdownMoveSources();
+        if (singlePlayer) {
+            AiMoveSource aiSource = new AiMoveSource(
+                    difficulty,
+                    mainHandler::post,
+                    aiThinkingLiveData::setValue
+            );
+            LocalHumanMoveSource humanSource = new LocalHumanMoveSource();
+            if (humanColor == Color.WHITE) {
+                this.whiteMoveSource = humanSource;
+                this.blackMoveSource = aiSource;
+            } else {
+                this.whiteMoveSource = aiSource;
+                this.blackMoveSource = humanSource;
+            }
+        } else {
+            this.whiteMoveSource = new LocalHumanMoveSource();
+            this.blackMoveSource = new LocalHumanMoveSource();
+        }
+
         long validMillis = initialClockMillis > 0 ? initialClockMillis : ChessClock.ONE_MINUTE_MILLIS;
         GameState initialState = GameState.initial(validMillis);
         gameStateLiveData.setValue(initialState);
-        requestMoveFromActiveSource(initialState);
         startClockLoop();
+        requestMoveFromActiveSource(initialState);
+    }
+
+    public boolean isSinglePlayer() {
+        return singlePlayer;
+    }
+
+    @NonNull
+    public Color getHumanColor() {
+        return humanColor;
+    }
+
+    @NonNull
+    public AiDifficulty getAiDifficulty() {
+        return aiDifficulty;
+    }
+
+    public boolean isRandomColorChoice() {
+        return randomColorChoice;
     }
 
     @NonNull
@@ -147,8 +208,14 @@ public class GameViewModel extends AndroidViewModel {
         return Boolean.TRUE.equals(pausedLiveData.getValue());
     }
 
+    @NonNull
+    public LiveData<Boolean> getAiThinking() {
+        return aiThinkingLiveData;
+    }
+
     /**
-     * Pauses the active game clock and hides the board behind the pause overlay.
+     * Pauses the active game clock, cancels any running AI computation cleanly,
+     * and hides the board behind the pause overlay.
      */
     public void pauseGame() {
         GameState current = gameStateLiveData.getValue();
@@ -157,6 +224,9 @@ public class GameViewModel extends AndroidViewModel {
         }
         applyElapsedRealtimeDelta();
         stopClockLoop();
+        whiteMoveSource.cancel();
+        blackMoveSource.cancel();
+        aiThinkingLiveData.setValue(false);
 
         GameState afterTick = gameStateLiveData.getValue();
         if (afterTick != null && afterTick.isGameOver()) {
@@ -166,7 +236,7 @@ public class GameViewModel extends AndroidViewModel {
     }
 
     /**
-     * Resumes the game clock from pause.
+     * Resumes the game clock from pause and re-requests a move from the active side's MoveSource.
      */
     public void resumeGame() {
         GameState current = gameStateLiveData.getValue();
@@ -175,6 +245,16 @@ public class GameViewModel extends AndroidViewModel {
         }
         pausedLiveData.setValue(false);
         startClockLoop();
+        requestMoveFromActiveSource(current);
+    }
+
+    /**
+     * Cancels active clocks and background AI tasks cleanly when the player exits the game screen.
+     */
+    public void onExitGame() {
+        stopClockLoop();
+        shutdownMoveSources();
+        aiThinkingLiveData.setValue(false);
     }
 
     @NonNull
@@ -225,6 +305,10 @@ public class GameViewModel extends AndroidViewModel {
     }
 
     private void onMoveChosenBySource(@NonNull Move move) {
+        if (isPaused()) {
+            return;
+        }
+        applyElapsedRealtimeDelta();
         GameState current = gameStateLiveData.getValue();
         if (current == null || current.isGameOver()) {
             return;
@@ -247,7 +331,7 @@ public class GameViewModel extends AndroidViewModel {
 
         if (nextState.isGameOver()) {
             onGameEnded();
-        } else {
+        } else if (nextState.hasLegalMoves()) {
             requestMoveFromActiveSource(nextState);
         }
     }
@@ -292,6 +376,7 @@ public class GameViewModel extends AndroidViewModel {
         stopClockLoop();
         whiteMoveSource.cancel();
         blackMoveSource.cancel();
+        aiThinkingLiveData.setValue(false);
         selectedSquareLiveData.setValue(null);
         pendingPromotionMovesLiveData.setValue(null);
         pausedLiveData.setValue(false);
@@ -301,7 +386,7 @@ public class GameViewModel extends AndroidViewModel {
         whiteMoveSource.cancel();
         blackMoveSource.cancel();
 
-        if (state.isGameOver()) {
+        if (state.isGameOver() || !state.hasLegalMoves()) {
             return;
         }
 
@@ -314,11 +399,21 @@ public class GameViewModel extends AndroidViewModel {
         return color == Color.WHITE ? whiteMoveSource : blackMoveSource;
     }
 
+    private void shutdownMoveSources() {
+        whiteMoveSource.cancel();
+        blackMoveSource.cancel();
+        if (whiteMoveSource instanceof AiMoveSource aiWhite) {
+            aiWhite.shutdown();
+        }
+        if (blackMoveSource instanceof AiMoveSource aiBlack) {
+            aiBlack.shutdown();
+        }
+    }
+
     @Override
     protected void onCleared() {
         stopClockLoop();
-        whiteMoveSource.cancel();
-        blackMoveSource.cancel();
+        shutdownMoveSources();
         super.onCleared();
     }
 }

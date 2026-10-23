@@ -15,9 +15,12 @@ import androidx.navigation.Navigation;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.reduan.vibechess.R;
+import com.reduan.vibechess.core.AiDifficulty;
 import com.reduan.vibechess.core.ChessClock;
+import com.reduan.vibechess.core.Color;
 import com.reduan.vibechess.core.GameResult;
 import com.reduan.vibechess.ui.game.GameFragment;
+import com.reduan.vibechess.ui.setup.GameSetupFragment;
 
 import java.util.Locale;
 
@@ -33,17 +36,46 @@ public class ResultFragment extends Fragment {
     public static final String ARG_WHITE_POINTS = "arg_white_points";
     public static final String ARG_BLACK_POINTS = "arg_black_points";
     public static final String ARG_INITIAL_CLOCK_MILLIS = "arg_initial_clock_millis";
+    public static final String ARG_SINGLE_PLAYER = "arg_single_player";
+    public static final String ARG_HUMAN_COLOR = "arg_human_color";
+    public static final String ARG_AI_DIFFICULTY = "arg_ai_difficulty";
+    public static final String ARG_RANDOM_COLOR_CHOICE = "arg_random_color_choice";
 
     @NonNull
     public static Bundle createArgs(@NonNull GameResult result,
                                     int whitePoints,
                                     int blackPoints,
                                     long initialClockMillis) {
+        return createArgs(
+                result,
+                whitePoints,
+                blackPoints,
+                initialClockMillis,
+                false,
+                Color.WHITE,
+                AiDifficulty.MEDIUM,
+                false
+        );
+    }
+
+    @NonNull
+    public static Bundle createArgs(@NonNull GameResult result,
+                                    int whitePoints,
+                                    int blackPoints,
+                                    long initialClockMillis,
+                                    boolean singlePlayer,
+                                    @NonNull Color humanColor,
+                                    @NonNull AiDifficulty difficulty,
+                                    boolean randomColorChoice) {
         Bundle args = new Bundle();
         args.putString(ARG_RESULT_NAME, result.name());
         args.putInt(ARG_WHITE_POINTS, whitePoints);
         args.putInt(ARG_BLACK_POINTS, blackPoints);
         args.putLong(ARG_INITIAL_CLOCK_MILLIS, initialClockMillis);
+        args.putBoolean(ARG_SINGLE_PLAYER, singlePlayer);
+        args.putString(ARG_HUMAN_COLOR, humanColor.name());
+        args.putString(ARG_AI_DIFFICULTY, difficulty.name());
+        args.putBoolean(ARG_RANDOM_COLOR_CHOICE, randomColorChoice);
         return args;
     }
 
@@ -64,6 +96,10 @@ public class ResultFragment extends Fragment {
         int whitePoints = 0;
         int blackPoints = 0;
         long initialClockMillis = ChessClock.ONE_MINUTE_MILLIS;
+        boolean singlePlayer = false;
+        Color humanColor = Color.WHITE;
+        AiDifficulty difficulty = AiDifficulty.MEDIUM;
+        boolean randomColorChoice = false;
 
         if (args != null) {
             String resultName = args.getString(ARG_RESULT_NAME, GameResult.DRAW.name());
@@ -78,6 +114,22 @@ public class ResultFragment extends Fragment {
                     ARG_INITIAL_CLOCK_MILLIS,
                     ChessClock.ONE_MINUTE_MILLIS
             );
+            singlePlayer = args.getBoolean(ARG_SINGLE_PLAYER, false);
+            randomColorChoice = args.getBoolean(ARG_RANDOM_COLOR_CHOICE, false);
+
+            String colorName = args.getString(ARG_HUMAN_COLOR, Color.WHITE.name());
+            try {
+                humanColor = Color.valueOf(colorName);
+            } catch (IllegalArgumentException ignored) {
+                humanColor = Color.WHITE;
+            }
+
+            String diffName = args.getString(ARG_AI_DIFFICULTY, AiDifficulty.MEDIUM.name());
+            try {
+                difficulty = AiDifficulty.valueOf(diffName);
+            } catch (IllegalArgumentException ignored) {
+                difficulty = AiDifficulty.MEDIUM;
+            }
         }
 
         TextView tvWinner = view.findViewById(R.id.tv_result_winner);
@@ -117,8 +169,26 @@ public class ResultFragment extends Fragment {
         tvBlackPoints.setText(String.format(Locale.getDefault(), "%d", blackPoints));
 
         final long rematchClockMillis = initialClockMillis;
+        final boolean rematchSinglePlayer = singlePlayer;
+        final Color rematchHumanColor = humanColor;
+        final AiDifficulty rematchDifficulty = difficulty;
+        final boolean rematchRandomColor = randomColorChoice;
+
         btnRematch.setOnClickListener(v -> {
-            Bundle gameArgs = GameFragment.createArgs(rematchClockMillis);
+            Bundle gameArgs;
+            if (rematchSinglePlayer) {
+                Color nextColor = rematchRandomColor
+                        ? GameSetupFragment.resolveHumanColor(GameSetupFragment.COLOR_CHOICE_RANDOM)
+                        : rematchHumanColor;
+                gameArgs = GameFragment.createSinglePlayerArgs(
+                        rematchClockMillis,
+                        nextColor,
+                        rematchDifficulty,
+                        rematchRandomColor
+                );
+            } else {
+                gameArgs = GameFragment.createArgs(rematchClockMillis);
+            }
             Navigation.findNavController(v).navigate(R.id.action_result_to_game, gameArgs);
         });
 

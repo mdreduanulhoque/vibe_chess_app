@@ -13,10 +13,10 @@ import androidx.navigation.Navigation;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.reduan.vibechess.R;
+import com.reduan.vibechess.ui.setup.GameSetupFragment;
 
 /**
  * Home screen with 4 buttons: Single Player, Multiplayer, How to Play, and Settings.
- * Game modes and How to Play are placeholders in Step 1; Settings opens the Settings screen.
  */
 public class HomeFragment extends Fragment {
 
@@ -37,13 +37,18 @@ public class HomeFragment extends Fragment {
         MaterialButton btnHowToPlay = view.findViewById(R.id.btn_how_to_play);
         MaterialButton btnSettings = view.findViewById(R.id.btn_settings);
 
-        View.OnClickListener placeholderListener = v ->
-                Snackbar.make(v, R.string.placeholder_coming_soon, Snackbar.LENGTH_SHORT).show();
+        btnSinglePlayer.setOnClickListener(v -> {
+            Bundle args = GameSetupFragment.createArgs(true);
+            Navigation.findNavController(v).navigate(R.id.action_home_to_setup, args);
+        });
 
-        btnSinglePlayer.setOnClickListener(placeholderListener);
-        btnMultiplayer.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_home_to_setup));
-        btnHowToPlay.setOnClickListener(placeholderListener);
+        btnMultiplayer.setOnClickListener(v -> {
+            Bundle args = GameSetupFragment.createArgs(false);
+            Navigation.findNavController(v).navigate(R.id.action_home_to_setup, args);
+        });
+
+        btnHowToPlay.setOnClickListener(v ->
+                Snackbar.make(v, R.string.placeholder_coming_soon, Snackbar.LENGTH_SHORT).show());
 
         btnSettings.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_home_to_settings));

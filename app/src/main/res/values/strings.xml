@@ -24,7 +24,16 @@
 
     <!-- Game Setup Screen -->
     <string name="setup_title">Game Setup</string>
+    <string name="setup_subtitle_single_player">Single Player vs Computer</string>
     <string name="setup_subtitle_multiplayer">Pass-and-Play (2 Players)</string>
+    <string name="setup_color_label">Play as</string>
+    <string name="setup_color_white">White</string>
+    <string name="setup_color_black">Black</string>
+    <string name="setup_color_random">Random</string>
+    <string name="setup_difficulty_label">Difficulty</string>
+    <string name="setup_difficulty_easy">Easy</string>
+    <string name="setup_difficulty_medium">Medium</string>
+    <string name="setup_difficulty_hard">Hard</string>
     <string name="setup_time_label">Time per side</string>
     <string name="setup_time_1_min">1 Minute</string>
     <string name="setup_time_2_min">2 Minutes</string>
@@ -34,8 +43,13 @@
     <!-- Game Screen -->
     <string name="game_player_white">White</string>
     <string name="game_player_black">Black</string>
+    <string name="game_player_white_you">White (You)</string>
+    <string name="game_player_white_ai">White (AI)</string>
+    <string name="game_player_black_you">Black (You)</string>
+    <string name="game_player_black_ai">Black (AI)</string>
     <string name="game_turn_white">White to move</string>
     <string name="game_turn_black">Black to move</string>
+    <string name="game_ai_thinking">AI is thinking…</string>
     <string name="game_clock_placeholder">--:--</string>
     <string name="game_win_probability_placeholder" formatted="false">Win Probability (50% - 50%)</string>
     <string name="game_prob_white_format">White %1$d%%</string>
