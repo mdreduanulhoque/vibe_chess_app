@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App & Splash -->
+    <string name="app_name">ভাইব চেস</string>
+    <string name="app_tagline">সময়ভিত্তিক দাবা। কোনো চেক নেই।</string>
+
+    <!-- Home Screen Buttons -->
+    <string name="home_single_player">একক খেলা (কম্পিউটারের বিরুদ্ধে)</string>
+    <string name="home_multiplayer">দুই খেলোয়াড় (অফলাইন)</string>
+    <string name="home_how_to_play">খেলার নিয়ম</string>
+    <string name="home_settings">সেটিংস</string>
+    <string name="placeholder_coming_soon">শীঘ্রই আসছে</string>
+
+    <!-- Settings Screen Labels -->
+    <string name="settings_title">সেটিংস</string>
+    <string name="settings_language_label">ভাষা</string>
+    <string name="settings_language_system">সিস্টেম</string>
+    <string name="settings_dark_mode_label">ডার্ক মোড</string>
+    <string name="settings_dark_mode_desc">লাইট ও ডার্ক থিম পরিবর্তন করুন</string>
+    <string name="settings_back">ফিরে যান</string>
+</resources>

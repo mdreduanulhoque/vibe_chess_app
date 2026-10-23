@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App & Splash -->
+    <string name="app_name">Vibe Chess</string>
+    <string name="splash_logo_text" translatable="false">Vibe Chess</string>
+    <string name="app_tagline">Timed Chess. No Check. Pure Vibe.</string>
+
+    <!-- Home Screen Buttons -->
+    <string name="home_single_player">Single Player</string>
+    <string name="home_multiplayer">Multiplayer</string>
+    <string name="home_how_to_play">How to Play</string>
+    <string name="home_settings">Settings</string>
+    <string name="placeholder_coming_soon">Coming soon</string>
+
+    <!-- Settings Screen Labels -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_label">Language</string>
+    <string name="settings_language_system">System</string>
+    <string name="settings_language_english" translatable="false">English</string>
+    <string name="settings_language_bangla" translatable="false">বাংলা</string>
+    <string name="settings_dark_mode_label">Dark Mode</string>
+    <string name="settings_dark_mode_desc">Switch between light and dark theme</string>
+    <string name="settings_back">Back</string>
+</resources>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Light Theme (Default) -->
+    <style name="Theme.VibeChess" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorOnSecondary">@color/onPrimary</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:textColorSecondary">@color/text</item>
+
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Apply bundled Bangla + Latin font globally -->
+        <item name="android:fontFamily">@font/noto_sans_bengali_family</item>
+        <item name="fontFamily">@font/noto_sans_bengali_family</item>
+    </style>
+
+    <!-- Minimalist Flat Filled Primary Button Style -->
+    <style name="Widget.VibeChess.Button.Primary" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">@dimen/corner_radius_md</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/onPrimary</item>
+        <item name="android:fontFamily">@font/noto_sans_bengali_family</item>
+        <item name="fontFamily">@font/noto_sans_bengali_family</item>
+    </style>
+
+    <!-- Minimalist Flat Surface Outlined Button Style -->
+    <style name="Widget.VibeChess.Button.Surface" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">@dimen/corner_radius_md</item>
+        <item name="backgroundTint">@color/surface</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="strokeWidth">@dimen/stroke_width</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:fontFamily">@font/noto_sans_bengali_family</item>
+        <item name="fontFamily">@font/noto_sans_bengali_family</item>
+    </style>
+</resources>

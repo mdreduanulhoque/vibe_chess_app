@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Tokens from PROJECT_SPEC.md -->
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="primary">#FF8A3D</color>
+    <color name="onPrimary">#1A1A1A</color>
+    <color name="text">#F2F2F2</color>
+    <color name="board_light">#3A3A3F</color>
+    <color name="board_dark">#26262B</color>
+
+    <!-- Same highlight logic (#F26A1B @ 40% and 25% alpha) -->
+    <color name="highlight_move">#66F26A1B</color>
+    <color name="last_move">#40F26A1B</color>
+
+    <!-- Piece tokens -->
+    <color name="piece_white_fill">#FFFFFF</color>
+    <color name="piece_black_fill">#2B2B2B</color>
+
+    <!-- Splash & UI supporting tokens -->
+    <color name="splash_background">#F26A1B</color>
+    <color name="splash_text">#FFFFFF</color>
+    <color name="stroke_subtle">#26F2F2F2</color>
+</resources>
